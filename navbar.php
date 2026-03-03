@@ -3,6 +3,11 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 $currentFile = basename($_SERVER['PHP_SELF'] ?? '');
 
+// Base href for correct links even when the app is in a subfolder (e.g. /KurseInformatika)
+$BASE_HREF = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+$BASE_HREF = rtrim($BASE_HREF, '/');
+if ($BASE_HREF === '.' || $BASE_HREF === '/') $BASE_HREF = '';
+
 /* -------- Helpers -------- */
 if (!function_exists('h')) {
   function h(?string $s): string { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
@@ -33,22 +38,22 @@ function is_logged_in(): bool {
   foreach ($ids as $id) if (!empty($id)) return true;
   return false;
 }
-function dashboard_href_by_role(string $role): string {
+function dashboard_href_by_role(string $role, string $baseHref = ''): string {
   $role = strtoupper($role);
   if (in_array($role, ['ADMIN', 'ADMINISTRATOR', 'ADM'], true)) {
-    return './virtuale/dashboard_admin.php';
+    return $baseHref . '/virtuale/dashboard_admin.php';
   }
 
   if (in_array($role, ['INSTRUCTOR', 'INSTRUKTOR', 'TEACHER', 'DOCENT'], true)) {
     // Prefer the Albanian filename used in this project.
-    if (is_file(__DIR__ . '/virtuale/dashboard_instruktor.php')) return './virtuale/dashboard_instruktor.php';
-    if (is_file(__DIR__ . '/virtuale/dashboard_instructor.php')) return './virtuale/dashboard_instructor.php';
-    return './virtuale/dashboard_instruktor.php';
+    if (is_file(__DIR__ . '/virtuale/dashboard_instruktor.php')) return $baseHref . '/virtuale/dashboard_instruktor.php';
+    if (is_file(__DIR__ . '/virtuale/dashboard_instructor.php')) return $baseHref . '/virtuale/dashboard_instructor.php';
+    return $baseHref . '/virtuale/dashboard_instruktor.php';
   }
 
   // Student
-  if (is_file(__DIR__ . '/virtuale/dashboard_student.php')) return './virtuale/dashboard_student.php';
-  return './virtuale/dashboard_student.php';
+  if (is_file(__DIR__ . '/virtuale/dashboard_student.php')) return $baseHref . '/virtuale/dashboard_student.php';
+  return $baseHref . '/virtuale/dashboard_student.php';
 }
 function get_session_name(): string {
   $candidates = [
@@ -68,7 +73,7 @@ function get_session_name(): string {
 
 $isLogged    = is_logged_in();
 $role        = get_session_role();
-$dashHref    = dashboard_href_by_role($role);
+$dashHref    = dashboard_href_by_role($role, $BASE_HREF);
 $displayName = get_session_name();
 ?>
 <style>
@@ -267,7 +272,7 @@ $displayName = get_session_name();
 
 <nav class="navbar navbar-expand-lg navbar-ki">
   <div class="container">
-    <a class="navbar-brand" href="index.php" aria-label="Kurse Informatike - Kryefaqja">
+    <a class="navbar-brand" href="<?= h($BASE_HREF) ?>/index.php" aria-label="Kurse Informatike - Kryefaqja">
       <span class="brand-mark"><i class="fa-solid fa-graduation-cap"></i></span>
       <span class="brand-text">KURSEINFORMATIKE</span>
     </a>
@@ -281,29 +286,29 @@ $displayName = get_session_name();
 
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link <?= $currentFile==='index.php'?'active':'' ?>" href="index.php">
+          <a class="nav-link <?= $currentFile==='index.php'?'active':'' ?>" href="<?= h($BASE_HREF) ?>/index.php">
             Kryefaqja
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?= $currentFile==='courses.php'?'active':'' ?>" href="courses.php">
+          <a class="nav-link <?= $currentFile==='courses.php'?'active':'' ?>" href="<?= h($BASE_HREF) ?>/courses.php">
             Kurset
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?= $currentFile==='events.php'?'active':'' ?>" href="events.php">
+          <a class="nav-link <?= $currentFile==='events.php'?'active':'' ?>" href="<?= h($BASE_HREF) ?>/events.php">
             Eventet
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?= $currentFile==='contact.php'?'active':'' ?>" href="contact.php">
+          <a class="nav-link <?= $currentFile==='contact.php'?'active':'' ?>" href="<?= h($BASE_HREF) ?>/contact.php">
             Kontakt
           </a>
         </li>
       </ul>
 
       <!-- Search (desktop + mobile) -->
-      <form class="nav-search input-group input-group-sm me-lg-2" action="courses.php" method="get" role="search">
+      <form class="nav-search input-group input-group-sm me-lg-2" action="<?= h($BASE_HREF) ?>/courses.php" method="get" role="search">
         <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
         <input class="form-control" type="search" name="q" placeholder="Kërko kurse..." aria-label="Kërko">
         <button class="btn" type="submit" aria-label="Kërko"><i class="fa-solid fa-arrow-right"></i></button>
@@ -318,16 +323,16 @@ $displayName = get_session_name();
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="<?= h($dashHref) ?>"><i class="fa-solid fa-gauge-high me-2"></i> Dashboard</a></li>
-              <li><a class="dropdown-item" href="./virtuale/profile.php"><i class="fa-regular fa-id-badge me-2"></i> Profili</a></li>
+              <li><a class="dropdown-item" href="<?= h($BASE_HREF) ?>/virtuale/profile.php"><i class="fa-regular fa-id-badge me-2"></i> Profili</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="./virtuale/logout.php"><i class="fa-solid fa-right-from-bracket me-2"></i> Dalje</a></li>
+              <li><a class="dropdown-item" href="<?= h($BASE_HREF) ?>/virtuale/logout.php"><i class="fa-solid fa-right-from-bracket me-2"></i> Dalje</a></li>
             </ul>
           </div>
         <?php else: ?>
-          <a href="virtuale/login.php" class="btn btn-ghost">
+          <a href="<?= h($BASE_HREF) ?>/virtuale/login.php" class="btn btn-ghost">
             <i class="fa-solid fa-right-to-bracket me-1"></i> Hyr
           </a>
-          <a href="virtuale/signup.php" class="btn btn-primary-ki">
+          <a href="<?= h($BASE_HREF) ?>/virtuale/signup.php" class="btn btn-primary-ki">
             <i class="fa-solid fa-user-plus me-1"></i> Regjistrohu
           </a>
         <?php endif; ?>
