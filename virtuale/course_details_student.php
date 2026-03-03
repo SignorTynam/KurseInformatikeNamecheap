@@ -56,10 +56,6 @@ $course_id = (int)$_GET['course_id'];
 $activeTab = isset($_GET['tab']) ? (string)$_GET['tab'] : '';
 $AREA_MAT  = 'MATERIALS';
 
-/* mapim i mundshëm i tab-eve të vjetër */
-if ($activeTab === 'labs') {
-  $activeTab = 'materials';
-}
 $validTabs = ['', 'overview', 'materials', 'forum', 'people', 'payments'];
 if (!in_array($activeTab, $validTabs, true)) {
   $activeTab = '';
@@ -391,7 +387,6 @@ $iconMap = [
   'USHTRIME'  => ['bi-pencil-square', '#ffc107'],
   'PROJEKTE'  => ['bi-kanban',        '#0d6efd'],
   'QUIZ'      => ['bi-patch-question','#20c997'],
-  'LAB'       => ['bi-cpu',           '#fd7e14'],
   'REFERENCA' => ['bi-bookmark',      '#198754'],
   'TJETER'    => ['bi-collection',    '#6c757d'],
 ];

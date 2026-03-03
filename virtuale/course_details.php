@@ -245,10 +245,6 @@ try {
           <?php include __DIR__ . '/tabs/course_materials.php'; ?>
         </div>
 
-        <div class="tab-pane fade <?= $activeTab==='labs'?'show active':'' ?>" id="labs" role="tabpanel">
-          <?php include __DIR__ . '/tabs/course_lab.php'; ?>
-        </div>
-
         <div class="tab-pane fade <?= $activeTab==='forum'?'show active':'' ?>" id="forum" role="tabpanel">
           <?php include __DIR__ . '/tabs/course_forum.php'; ?>
         </div>
