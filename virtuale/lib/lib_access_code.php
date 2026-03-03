@@ -9,13 +9,40 @@ declare(strict_types=1);
  */
 
 function ki_table_has_column(PDO $pdo, string $table, string $column): bool {
+    if (!preg_match('/^[A-Za-z0-9_]+$/', $table) || !preg_match('/^[A-Za-z0-9_]+$/', $column)) {
+        return false;
+    }
+
     try {
-        $stmt = $pdo->prepare("SHOW COLUMNS FROM `$table` LIKE ?");
-        $stmt->execute([$column]);
-        return (bool)$stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare(
+            'SELECT 1
+             FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND COLUMN_NAME = ?
+             LIMIT 1'
+        );
+        $stmt->execute([$table, $column]);
+        if ($stmt->fetchColumn()) {
+            return true;
+        }
+    } catch (Throwable $e) {
+        // fallback below
+    }
+
+    try {
+        $tableQuoted = '`' . str_replace('`', '``', $table) . '`';
+        $stmt = $pdo->query("SHOW COLUMNS FROM {$tableQuoted}");
+        while ($row = $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : false) {
+            if (strcasecmp((string)($row['Field'] ?? ''), $column) === 0) {
+                return true;
+            }
+        }
     } catch (Throwable $e) {
         return false;
     }
+
+    return false;
 }
 
 function ki_normalize_access_code(string $raw): ?string {
@@ -41,6 +68,49 @@ function ki_generate_unique_course_access_code(PDO $pdo, int $maxAttempts = 40):
         }
     }
     throw new RuntimeException('Nuk u arrit të gjenerohej një access code unik. Provo sërish.');
+}
+
+function ki_ensure_courses_access_code_schema(PDO $pdo): bool {
+    if (ki_table_has_column($pdo, 'courses', 'access_code')) {
+        return true;
+    }
+
+    $addColumnSql = [
+        "ALTER TABLE courses ADD COLUMN access_code VARCHAR(5) NULL",
+        "ALTER TABLE `courses` ADD COLUMN `access_code` VARCHAR(5) NULL",
+        "ALTER TABLE courses ADD COLUMN IF NOT EXISTS access_code VARCHAR(5) NULL",
+        "ALTER TABLE `courses` ADD COLUMN IF NOT EXISTS `access_code` VARCHAR(5) NULL",
+    ];
+
+    foreach ($addColumnSql as $sql) {
+        try {
+            $pdo->exec($sql);
+            break;
+        } catch (Throwable $e) {
+            // try next variant
+        }
+    }
+
+    if (!ki_table_has_column($pdo, 'courses', 'access_code')) {
+        return false;
+    }
+
+    try {
+        $idx = $pdo->query("SHOW INDEX FROM courses WHERE Key_name = 'ux_courses_access_code'");
+        $hasUniqueIndex = (bool)$idx && (bool)$idx->fetch(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        $hasUniqueIndex = false;
+    }
+
+    if (!$hasUniqueIndex) {
+        try {
+            $pdo->exec("ALTER TABLE courses ADD UNIQUE KEY ux_courses_access_code (access_code)");
+        } catch (Throwable $e) {
+            // Non-blocking: column existing is enough for core flow.
+        }
+    }
+
+    return true;
 }
 
 /**

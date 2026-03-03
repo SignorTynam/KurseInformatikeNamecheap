@@ -24,6 +24,10 @@ $info = '';
 $course = null;
 
 $HAS_ACCESS_CODE = ki_table_has_column($pdo, 'courses', 'access_code');
+if (!$HAS_ACCESS_CODE) {
+  ki_ensure_courses_access_code_schema($pdo);
+  $HAS_ACCESS_CODE = ki_table_has_column($pdo, 'courses', 'access_code');
+}
 
 $course_id = 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
