@@ -35,9 +35,20 @@ function is_logged_in(): bool {
 }
 function dashboard_href_by_role(string $role): string {
   $role = strtoupper($role);
-  if (in_array($role, ['ADMIN', 'ADMINISTRATOR', 'ADM'], true)) return './virtuale/dashboard_admin.php';
-  if (in_array($role, ['INSTRUCTOR', 'TEACHER', 'DOCENT'], true)) return './virtuale/dashboard_instructor.php';
-  return 'dashboard_student.php';
+  if (in_array($role, ['ADMIN', 'ADMINISTRATOR', 'ADM'], true)) {
+    return './virtuale/dashboard_admin.php';
+  }
+
+  if (in_array($role, ['INSTRUCTOR', 'INSTRUKTOR', 'TEACHER', 'DOCENT'], true)) {
+    // Prefer the Albanian filename used in this project.
+    if (is_file(__DIR__ . '/virtuale/dashboard_instruktor.php')) return './virtuale/dashboard_instruktor.php';
+    if (is_file(__DIR__ . '/virtuale/dashboard_instructor.php')) return './virtuale/dashboard_instructor.php';
+    return './virtuale/dashboard_instruktor.php';
+  }
+
+  // Student
+  if (is_file(__DIR__ . '/virtuale/dashboard_student.php')) return './virtuale/dashboard_student.php';
+  return './virtuale/dashboard_student.php';
 }
 function get_session_name(): string {
   $candidates = [
@@ -307,9 +318,9 @@ $displayName = get_session_name();
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="<?= h($dashHref) ?>"><i class="fa-solid fa-gauge-high me-2"></i> Dashboard</a></li>
-              <li><a class="dropdown-item" href="profile.php"><i class="fa-regular fa-id-badge me-2"></i> Profili</a></li>
+              <li><a class="dropdown-item" href="./virtuale/profile.php"><i class="fa-regular fa-id-badge me-2"></i> Profili</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="logout.php"><i class="fa-solid fa-right-from-bracket me-2"></i> Dalje</a></li>
+              <li><a class="dropdown-item" href="./virtuale/logout.php"><i class="fa-solid fa-right-from-bracket me-2"></i> Dalje</a></li>
             </ul>
           </div>
         <?php else: ?>
