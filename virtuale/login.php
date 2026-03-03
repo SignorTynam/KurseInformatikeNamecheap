@@ -23,7 +23,7 @@ $IS_HTTPS = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SE
 function redirect_by_role(string $role): void {
   switch ($role) {
     case 'Administrator': header('Location: dashboard_admin.php'); break;
-    case 'Instruktor':    header('Location: dashboard_instructor.php'); break;
+    case 'Instruktor':    header('Location: dashboard_instruktor.php'); break;
     case 'Student':       header('Location: dashboard_student.php'); break;
     default:              header('Location: index.php'); break;
   }

@@ -564,7 +564,7 @@ $hasNotebook    = !empty($lesson['notebook_path']);
               <a class="text-decoration-none"
                  href="<?=
                    $userRole === 'Administrator' ? 'dashboard_admin.php'
-                   : ($userRole === 'Instruktor' ? 'dashboard_instructor.php' : 'dashboard_student.php')
+                   : ($userRole === 'Instruktor' ? 'dashboard_instruktor.php' : 'dashboard_student.php')
                  ?>">
                 <i class="fa fa-home me-1"></i> Kryefaqja
               </a>
