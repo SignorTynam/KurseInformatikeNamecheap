@@ -344,12 +344,12 @@ if (!empty($nextSession)) {
             <span class="badge bg-danger me-2">LIVE</span>
             <strong class="brand-heading"><?= h($nextSession['appointment_title']) ?></strong> •
             <?= date('d M Y, H:i', strtotime($nextSession['appointment_date'])) ?> •
-            <span><?= h($nextSession['course_title']) ?></span>
+            <a href="course_details_student.php?course_id=<?= (int)$nextSession['course_id'] ?>" class="fw-semibold text-reset text-decoration-underline"><?= h($nextSession['course_title']) ?></a>
             <span class="ms-2 text-muted">Leksioni është duke u zhvilluar LIVE.</span>
           <?php else: ?>
             Seanca e radhës: <strong class="brand-heading"><?= h($nextSession['appointment_title']) ?></strong> •
             <?= date('d M Y, H:i', strtotime($nextSession['appointment_date'])) ?> •
-            <span><?= h($nextSession['course_title']) ?></span>
+            <a href="course_details_student.php?course_id=<?= (int)$nextSession['course_id'] ?>" class="fw-semibold text-reset text-decoration-underline"><?= h($nextSession['course_title']) ?></a>
           <?php endif; ?>
         </div>
         <?php if ($nextLink && filter_var($nextLink, FILTER_VALIDATE_URL)): ?>

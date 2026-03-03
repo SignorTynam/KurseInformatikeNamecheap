@@ -212,7 +212,6 @@ try {
         JOIN courses c ON a.course_id = c.id
         WHERE a.appointment_date >= ?
         ORDER BY a.appointment_date ASC
-        LIMIT 3
     ");
     $stmt->execute([$liveWindowStart]);
     $stats['upcoming_lessons'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -395,12 +394,12 @@ $JS_DATA = [
             <span class="badge bg-danger me-2">LIVE</span>
             <strong class="brand-heading"><?= h($nextSession['appointment_title']) ?></strong> •
             <?= date('d M Y, H:i', strtotime($nextSession['appointment_date'])) ?> •
-                        <span><?= h($nextSession['course_title']) ?></span>
+                                                <a href="course_details.php?course_id=<?= (int)$nextSession['course_id'] ?>" class="fw-semibold text-reset text-decoration-underline"><?= h($nextSession['course_title']) ?></a>
                         <span class="ms-2 text-muted">Leksioni është duke u zhvilluar LIVE.</span>
           <?php else: ?>
             Seanca e radhës: <strong class="brand-heading"><?= h($nextSession['appointment_title']) ?></strong> •
             <?= date('d M Y, H:i', strtotime($nextSession['appointment_date'])) ?> •
-                        <span><?= h($nextSession['course_title']) ?></span>
+                                                <a href="course_details.php?course_id=<?= (int)$nextSession['course_id'] ?>" class="fw-semibold text-reset text-decoration-underline"><?= h($nextSession['course_title']) ?></a>
           <?php endif; ?>
         </div>
         <?php if ($nextLink && filter_var($nextLink, FILTER_VALIDATE_URL)): ?>
@@ -414,6 +413,40 @@ $JS_DATA = [
 </section>
 
 <div class="container">
+    <div class="row g-3 mb-4 upcoming-lessons-wrap">
+        <div class="col-12">
+            <div class="card card-elev h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3 upcoming-lessons-head">
+                        <h2 class="h5 mb-0 brand-heading">Të gjitha leksionet e ardhshme</h2>
+                        <span class="badge upcoming-lessons-count"><?= count($stats['upcoming_lessons']) ?></span>
+                    </div>
+
+                    <?php if (!empty($stats['upcoming_lessons'])): ?>
+                        <div class="upcoming-lessons-list">
+                            <?php foreach ($stats['upcoming_lessons'] as $idx => $lesson): ?>
+                                <?php $isNextLesson = ($idx === 0); ?>
+                                <div class="upcoming-lesson-item <?= $isNextLesson ? 'is-next' : '' ?>">
+                                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-2 upcoming-lesson-row">
+                                        <div class="upcoming-lesson-meta">
+                                            <?php if ($isNextLesson): ?>
+                                                <span class="badge upcoming-lesson-next-badge mb-1">LEKSIONI I RADHËS</span>
+                                            <?php endif; ?>
+                                            <div class="fw-semibold brand-heading upcoming-lesson-title"><?= h($lesson['appointment_title']) ?></div>
+                                            <div class="small text-muted upcoming-lesson-date"><?= date('d M Y, H:i', strtotime($lesson['appointment_date'])) ?></div>
+                                        </div>
+                                        <a href="course_details.php?course_id=<?= (int)$lesson['course_id'] ?>" class="fw-semibold upcoming-lesson-course"><?= h($lesson['course_title']) ?></a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">Nuk ka leksione të planifikuara për momentin.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row g-3 mb-4">
         <div class="col-12 col-lg-12">

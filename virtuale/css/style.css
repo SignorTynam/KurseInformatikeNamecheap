@@ -208,6 +208,79 @@ h1,h2,h3,h4,h5,h6,
   border-top:1px dashed #e5e7eb;
 }
 
+/* UPCOMING LESSONS (ADMIN) ---------------------------------- */
+.upcoming-lessons-wrap .card-body {
+  padding: 1rem 1.1rem;
+}
+
+.upcoming-lessons-head {
+  padding-bottom: .35rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.upcoming-lessons-count {
+  background: #f9fafb;
+  color: #111827;
+  border: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.upcoming-lessons-list {
+  display: grid;
+  gap: .65rem;
+}
+
+.upcoming-lesson-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: var(--shadow-soft);
+  padding: .8rem .9rem;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.upcoming-lesson-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15,23,42,.08);
+}
+
+.upcoming-lesson-item.is-next {
+  border-color: var(--primary);
+  background: #eff6ff;
+}
+
+.upcoming-lesson-title {
+  color: #111827;
+}
+
+.upcoming-lesson-date {
+  color: var(--muted) !important;
+}
+
+.upcoming-lesson-next-badge {
+  background: var(--primary) !important;
+  color: #ffffff;
+  font-size: .68rem;
+  letter-spacing: .3px;
+}
+
+.upcoming-lesson-course {
+  color: var(--primary);
+  text-decoration: none;
+  border-bottom: 1px dashed transparent;
+}
+
+.upcoming-lesson-course:hover {
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary-dark);
+}
+
+@media (max-width: 991.98px) {
+  .upcoming-lesson-course {
+    margin-top: .2rem;
+  }
+}
+
 /* TITULL SEKSIONI ------------------------------------------ */
 .section-title{
   color:var(--primary);
