@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/sections_utils.php';
+require_once __DIR__ . '/lesson_videos.php';
 
 if (!function_exists('table_has_column')) {
   function table_has_column(PDO $pdo, string $table, string $column): bool {
@@ -105,6 +106,8 @@ function copy_lesson_deep(PDO $pdo, int $sourceLessonId, int $targetCourseId, ?i
       $insi->execute([$newLessonId, $img['file_path'], $img['alt_text'], (int)$img['position']]);
     }
   }
+
+  lv_copy_lesson_videos($pdo, $sourceLessonId, $newLessonId);
 
   return $newLessonId;
 }

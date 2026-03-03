@@ -5,6 +5,7 @@ session_start();
 header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/lib/database.php';
+require_once __DIR__ . '/lib/lesson_videos.php';
 
 /* RBAC */
 if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'] ?? '', ['Administrator','Instruktor'], true)) {
@@ -143,6 +144,8 @@ try {
         ':file_type' => $lf['file_type'] ?? null,
       ]);
     }
+
+    lv_copy_lesson_videos($pdo, (int)$l['id'], $newLessonId);
   }
 
   /* =========================

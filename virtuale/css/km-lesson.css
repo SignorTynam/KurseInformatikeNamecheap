@@ -78,6 +78,33 @@
   border-radius: 1.1rem 1.1rem 0 0;
 }
 
+.km-lesson-video-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .7rem;
+  padding: .55rem .8rem;
+  border-top: 1px solid rgba(255,255,255,.14);
+  background: rgba(2,6,23,.82);
+}
+
+.km-lesson-video-nav .btn {
+  border-color: rgba(255,255,255,.45);
+  color: #fff;
+}
+
+.km-lesson-video-nav .btn:hover {
+  background: rgba(255,255,255,.14);
+}
+
+.km-lesson-video-nav-meta {
+  color: rgba(255,255,255,.92);
+  font-size: .83rem;
+  font-weight: 600;
+  min-width: 108px;
+  text-align: center;
+}
+
 .km-lesson-hero-media--placeholder {
   padding: 1rem 1.2rem;
   background: radial-gradient(circle at top left, #dbeafe, #e5e7eb);

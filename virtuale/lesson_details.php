@@ -3,6 +3,7 @@ declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/lib/database.php';
 require_once __DIR__ . '/lib/Parsedown.php';
+require_once __DIR__ . '/lib/lesson_videos.php';
 
 /* ------------------------------- Helpers ------------------------------- */
 function h(?string $s): string {
@@ -252,10 +253,34 @@ function getEmbedUrl(string $url): array {
 $lessonCategory = strtoupper((string)($lesson['category'] ?? 'LEKSION'));
 $media          = ['type' => 'none', 'src' => ''];
 
-if (!empty($lesson['URL'])) {
+$lessonVideos = lv_get_lesson_videos($pdo, $lesson_id, true);
+$videoCount = count($lessonVideos);
+$videoIndex = (int)($_GET['v'] ?? 1);
+if ($videoIndex < 1) $videoIndex = 1;
+if ($videoCount > 0 && $videoIndex > $videoCount) $videoIndex = $videoCount;
+
+$primaryVideoUrl = $lessonVideos ? (string)($lessonVideos[$videoIndex - 1]['url'] ?? '') : '';
+
+if ($primaryVideoUrl !== '') {
+  $media = getEmbedUrl($primaryVideoUrl);
+} elseif (!empty($lesson['URL'])) {
   $media = getEmbedUrl((string)$lesson['URL']);
 }
 $hasMedia = $media['type'] !== 'none';
+$hasMultipleVideoLinks = count($lessonVideos) > 1;
+$hasVideoPager = $hasMultipleVideoLinks && $videoCount > 1;
+
+$videoPrevUrl = '';
+$videoNextUrl = '';
+if ($hasVideoPager) {
+  $qsPrev = $_GET;
+  $qsPrev['v'] = max(1, $videoIndex - 1);
+  $videoPrevUrl = 'lesson_details.php?' . http_build_query($qsPrev);
+
+  $qsNext = $_GET;
+  $qsNext['v'] = min($videoCount, $videoIndex + 1);
+  $videoNextUrl = 'lesson_details.php?' . http_build_query($qsNext);
+}
 
 /* --------------------------- Files e leksionit ------------------------- */
 $filesByType = [
@@ -315,12 +340,14 @@ try {
 
 $hasVideoAttachments = !empty($filesByType['VIDEO']);
 $hasImageAttachments = !empty($filesByType['IMAGE']);
+$hasVideoLinks       = !empty($lessonVideos);
 $hasDownloadableFiles  = !empty($filesByType['PDF'])
                       || !empty($filesByType['SLIDES'])
                       || !empty($filesByType['DOC'])
                       || !empty($filesByType['VIDEO'])
                       || !empty($filesByType['IMAGE'])
                       || !empty($filesByType['OTHER'])
+                      || $hasVideoLinks
                       || !empty($lesson['notebook_path']);
 
 /* --------------------------- Leksione të seksionit --------------------- */
@@ -805,6 +832,24 @@ $hasNotebook    = !empty($lesson['notebook_path']);
                     </div>
                   </div>
                 <?php endif; ?>
+
+                <?php if ($hasVideoPager): ?>
+                  <div class="km-lesson-video-nav">
+                    <a class="btn btn-sm btn-outline-light rounded-pill <?= $videoIndex <= 1 ? 'disabled' : '' ?>"
+                       href="<?= h($videoPrevUrl) ?>"
+                       aria-label="Video e mëparshme"
+                       <?= $videoIndex <= 1 ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
+                      <i class="fa fa-chevron-left me-1"></i> Mbrapa
+                    </a>
+                    <span class="km-lesson-video-nav-meta">Video <?= (int)$videoIndex ?> / <?= (int)$videoCount ?></span>
+                    <a class="btn btn-sm btn-outline-light rounded-pill <?= $videoIndex >= $videoCount ? 'disabled' : '' ?>"
+                       href="<?= h($videoNextUrl) ?>"
+                       aria-label="Videoja e rradhës"
+                       <?= $videoIndex >= $videoCount ? 'tabindex="-1" aria-disabled="true"' : '' ?>>
+                      Rradhës <i class="fa fa-chevron-right ms-1"></i>
+                    </a>
+                  </div>
+                <?php endif; ?>
               </div>
             <?php else: ?>
               <div class="km-lesson-hero-media km-lesson-hero-media--placeholder">
@@ -936,6 +981,28 @@ $hasNotebook    = !empty($lesson['notebook_path']);
                 </div>
               <?php endif; ?>
 
+              <?php if ($hasMultipleVideoLinks): ?>
+                <div class="km-lesson-hero-extra small mt-2">
+                  <span class="text-muted me-2">
+                    <i class="fa fa-video me-1"></i> Video links:
+                  </span>
+                  <?php
+                    $shownVid = 0;
+                    $cntVid = count($lessonVideos);
+                    foreach ($lessonVideos as $v):
+                      $shownVid++;
+                      if ($shownVid > 3) break;
+                      $vUrl = (string)($v['url'] ?? '');
+                      if ($vUrl === '') continue;
+                  ?>
+                    <a href="<?= h($vUrl) ?>" target="_blank" rel="noopener" class="text-decoration-none me-2">Video <?= $shownVid ?></a>
+                  <?php endforeach; ?>
+                  <?php if ($cntVid > 3): ?>
+                    <span class="text-muted">+<?= $cntVid - 3 ?> të tjera</span>
+                  <?php endif; ?>
+                </div>
+              <?php endif; ?>
+
               <?php if ($hasImageAttachments): ?>
                 <div class="km-lesson-hero-extra small mt-2">
                   <span class="text-muted me-2">
@@ -1025,6 +1092,7 @@ $hasNotebook    = !empty($lesson['notebook_path']);
                       foreach ($orderTypes as $tKey => $label) {
                         if (!empty($filesByType[$tKey])) { $hasAnyGroup = true; break; }
                       }
+                      if ($hasVideoLinks) $hasAnyGroup = true;
                     ?>
 
                     <?php if ($hasAnyGroup): ?>
@@ -1072,6 +1140,31 @@ $hasNotebook    = !empty($lesson['notebook_path']);
                           </ul>
                         </div>
                       <?php endforeach; ?>
+
+                      <?php if ($hasVideoLinks): ?>
+                        <div class="km-lesson-resource-group mb-3">
+                          <div class="km-lesson-file-group-title small text-uppercase text-muted mb-1">
+                            Video links
+                          </div>
+                          <ul class="list-group list-group-flush km-lesson-resource-list">
+                            <?php foreach ($lessonVideos as $idx => $v): ?>
+                              <?php $vUrl = trim((string)($v['url'] ?? '')); if ($vUrl === '') continue; ?>
+                              <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                <div class="d-flex align-items-center">
+                                  <div class="km-lesson-file-icon me-2"><i class="fa fa-circle-play"></i></div>
+                                  <div>
+                                    <div class="fw-semibold">Video <?= (int)$idx + 1 ?></div>
+                                    <div class="small text-muted text-break"><?= h($vUrl) ?></div>
+                                  </div>
+                                </div>
+                                <a href="<?= h($vUrl) ?>" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                  <i class="fa fa-arrow-up-right-from-square me-1"></i> Hap
+                                </a>
+                              </li>
+                            <?php endforeach; ?>
+                          </ul>
+                        </div>
+                      <?php endif; ?>
                     <?php else: ?>
                       <div class="text-muted small">
                         Ky leksion nuk ka materiale të bashkangjitura.

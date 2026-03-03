@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once __DIR__ . '/../lib/database.php';
+require_once __DIR__ . '/../lib/lesson_videos.php';
 
 /* ------------------------------- Helpers ------------------------------- */
 function h(?string $s): string {
@@ -131,6 +132,7 @@ $title            = (string)($lesson['title'] ?? '');
 $selectedCategory = strtoupper((string)($lesson['category'] ?? 'LEKSION'));
 $url              = (string)($lesson['URL'] ?? '');
 $description      = (string)($lesson['description'] ?? '');
+$video_urls_text  = implode("\n", array_map(static fn($v) => (string)($v['url'] ?? ''), lv_get_lesson_videos($pdo, $lesson_id, true)));
 $section_id       = isset($lesson['section_id']) ? (int)$lesson['section_id'] : 0;
 $errors = [];
 
@@ -172,16 +174,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $title            = trim((string)($_POST['title'] ?? ''));
   $description      = (string)($_POST['description'] ?? '');
   $url              = trim((string)($_POST['url'] ?? ''));
+  $video_urls_text  = trim((string)($_POST['video_urls'] ?? ''));
   $section_post     = (int)($_POST['section_id'] ?? 0);
   $selectedCategory = strtoupper(trim((string)($_POST['category'] ?? $selectedCategory)));
   $cat              = $selectedCategory;
+  $videoUrls        = lv_normalize_urls_text($video_urls_text);
+  if ($cat === 'VIDEO' && !$videoUrls && $url !== '' && filter_var($url, FILTER_VALIDATE_URL)) {
+    $videoUrls = [$url];
+  }
 
   if ($title === '') $errors[] = 'Titulli është i detyrueshëm.';
   if ($selectedCategory === '') $errors[] = 'Zgjedhja e kategorisë është e detyrueshme.';
 
   if (in_array($cat, ['VIDEO','LINK'], true)) {
-    if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
-      $errors[] = 'URL e vlefshme është e detyrueshme për VIDEO/LINK.';
+    if ($cat === 'VIDEO') {
+      if (!$videoUrls) {
+        $errors[] = 'Për VIDEO duhet të vendosni të paktën 1 URL videoje.';
+      }
+      if ($videoUrls) {
+        $url = (string)$videoUrls[0];
+      }
+    } elseif ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
+      $errors[] = 'URL e vlefshme është e detyrueshme për LINK.';
     }
   } elseif ($cat === 'LEKSION') {
     if (trim($description) === '') {
@@ -309,6 +323,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           VALUES (?,?,?)
         ");
         $stmtF->execute([$lesson_id, $uploadedFileRel, $uploadedFileType ?: 'DOC']);
+      }
+
+      if (lv_ensure_schema($pdo)) {
+        lv_replace_lesson_videos($pdo, $lesson_id, $videoUrls);
       }
 
       /* ✅ FIX: përditëso section_items që outline të mos prishet */
@@ -532,6 +550,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="km-help-text mt-1" id="urlHelp">
                 Vendos URL-në e videos ose linkun e burimit të jashtëm.
               </div>
+            </div>
+
+            <div class="mt-3 d-none" id="videoUrlsWrap">
+              <label class="form-label">URL të videove (një për rresht)</label>
+              <textarea class="form-control"
+                        id="video_urls"
+                        name="video_urls"
+                        rows="4"
+                        placeholder="https://youtu.be/...&#10;https://vimeo.com/...&#10;https://example.com/video.mp4"><?= h($video_urls_text) ?></textarea>
+              <div class="km-help-text mt-1">Shto 1 ose më shumë video. URL-ja e parë përdoret si video kryesore.</div>
             </div>
 
             <div class="mt-3" id="descWrap">
@@ -1040,12 +1068,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   const urlInput = document.getElementById('url');
   const urlLabel = document.getElementById('urlLabel');
   const urlHelp  = document.getElementById('urlHelp');
+  const videoUrlsWrap = document.getElementById('videoUrlsWrap');
   const fileCard = document.getElementById('fileCard');
   const fileInput= document.getElementById('lesson_file');
 
   function toggleFields() {
     const v = (catSel.value || '').toUpperCase();
     if (urlWrap)  urlWrap.classList.add('d-none');
+    if (videoUrlsWrap) videoUrlsWrap.classList.add('d-none');
     if (fileCard) fileCard.classList.add('d-none');
     if (urlInput) urlInput.required = false;
 
@@ -1054,14 +1084,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (v === 'LEKSION') {
       urlWrap.classList.remove('d-none');
+      if (videoUrlsWrap) videoUrlsWrap.classList.remove('d-none');
       fileCard.classList.remove('d-none');
       labelText = 'Video / link (opsionale)';
       helpText  = 'Opsionale: vendos linkun e videos ose një faqeje të jashtme.';
     } else if (v === 'VIDEO') {
       urlWrap.classList.remove('d-none');
+      if (videoUrlsWrap) videoUrlsWrap.classList.remove('d-none');
       urlInput.required = true;
       labelText = 'URL e videos';
-      helpText  = 'Link i videos (YouTube, Vimeo, Loom, etj.).';
+      helpText  = 'URL kryesore e videos (auto nga lista nëse lihet bosh).';
     } else if (v === 'LINK') {
       urlWrap.classList.remove('d-none');
       urlInput.required = true;
