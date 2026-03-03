@@ -217,8 +217,6 @@ $page     = max(1, (int)($_GET['page'] ?? 1));
 $per_page = min(max($per_page, 6), 60);
 $offset   = ($page - 1) * $per_page;
 
-$view = (string)($_GET['view'] ?? 'grid'); // ruhet edhe client-side me localStorage
-
 // validime
 if (!in_array($statusRaw, ['ALL','COMPLETED','FAILED'], true)) $statusRaw = 'ALL';
 if ($date_from !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_from)) $date_from = '';
@@ -521,7 +519,6 @@ function build_url(array $patch): string {
             <input type="hidden" name="q"        value="<?= h($q) ?>">
             <input type="hidden" name="sort"     value="<?= h($sort) ?>">
             <input type="hidden" name="per_page" value="<?= (int)$per_page ?>">
-            <input type="hidden" name="view"     value="<?= h($view) ?>">
 
             <div>
               <label class="form-label">Statusi</label>
@@ -621,7 +618,6 @@ function build_url(array $patch): string {
               <input type="hidden" name="date_to"   value="<?= h($date_to) ?>">
               <input type="hidden" name="user_id"   value="<?= (int)$user_id_f ?>">
               <input type="hidden" name="course_id" value="<?= (int)$course_id_f ?>">
-              <input type="hidden" name="view"      value="<?= h($view) ?>">
               <button class="btn btn-primary course-btn-main" type="submit">
                 <i class="fa-solid fa-magnifying-glass me-1"></i> Kërko
               </button>
@@ -688,15 +684,9 @@ function build_url(array $patch): string {
           <?php endforeach; ?>
         </ul>
 
-        <!-- View toggle -->
-        <div class="pay-viewbar mb-3">
-          <div class="pay-viewtabs">
-            <button type="button" class="pay-viewbtn" id="viewGridBtn"><i class="fa-solid fa-table-cells-large me-1"></i> Grid</button>
-            <button type="button" class="pay-viewbtn" id="viewListBtn"><i class="fa-solid fa-list me-1"></i> Listë</button>
-          </div>
-
+        <div class="pay-list-head mb-3">
           <div class="pay-mini text-muted">
-            7 ditët e fundit: <strong><?= number_format((float)$total7days, 2) ?>€</strong>
+            Totali (7 ditët e fundit): <strong><?= number_format((float)$total7days, 2) ?>€</strong>
           </div>
         </div>
 
@@ -713,108 +703,10 @@ function build_url(array $patch): string {
           </div>
         </section>
 
-        <!-- GRID VIEW -->
-        <section class="pay-grid" id="payGrid">
-          <?php if (!$payments): ?>
-            <div class="course-empty">
-              <div class="icon"><i class="fa-regular fa-face-smile-beam"></i></div>
-              <div class="title">S’u gjet asnjë pagesë me këto filtra.</div>
-              <div class="subtitle">Provo të ndryshosh filtrat ose shto një pagesë të re.</div>
-              <button class="btn btn-primary course-btn-main" type="button" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
-                <i class="fa-solid fa-plus me-1"></i> Shto pagesë
-              </button>
-            </div>
-          <?php else: ?>
-            <div class="row g-3">
-              <?php foreach ($payments as $p):
-                $pid    = (int)($p['id'] ?? 0);
-                $name   = (string)($p['student_name'] ?? '');
-                $email  = (string)($p['student_email'] ?? '');
-                $course = (string)($p['course_title'] ?? '');
-                $lesson = (string)($p['lesson_title'] ?? '');
-                $status = (string)($p['payment_status'] ?? 'FAILED');
-                $amount = (float)($p['amount'] ?? 0);
-                $dtTs   = strtotime((string)($p['payment_date'] ?? 'now'));
-                $dtView = date('d.m.Y H:i', $dtTs);
-                $dtEdit = date('Y-m-d\TH:i', $dtTs);
-                $avatar = strtoupper(mb_substr($name !== '' ? $name : ($email !== '' ? $email : 'U'), 0, 1, 'UTF-8'));
-
-                $pillCls = ($status === 'COMPLETED') ? 'pay-status-ok' : 'pay-status-bad';
-                $pillTxt = ($status === 'COMPLETED') ? 'Suksesshme' : 'Dështuara';
-              ?>
-                <div class="col-12 col-sm-6 col-xl-4">
-                  <article class="pay-card h-100"
-                           data-payment-row
-                           data-pid="<?= $pid ?>"
-                           data-user-id="<?= (int)($p['user_id'] ?? 0) ?>"
-                           data-course-id="<?= (int)($p['course_id'] ?? 0) ?>"
-                           data-lesson-id="<?= (int)($p['lesson_id'] ?? 0) ?>"
-                           data-status="<?= h($status) ?>"
-                           data-amount="<?= h((string)$amount) ?>"
-                           data-payment-date="<?= h($dtEdit) ?>">
-                    <div class="pay-card-top">
-                      <div class="pay-avatar" title="<?= h($email ?: '—') ?>"><?= h($avatar) ?></div>
-                      <div class="flex-grow-1">
-                        <div class="pay-title text-truncate"><?= h($name ?: '—') ?></div>
-                        <div class="pay-sub text-truncate"><i class="fa-regular fa-at me-1"></i><?= h($email ?: '—') ?></div>
-                      </div>
-                      <span class="pay-status <?= h($pillCls) ?>"><i class="fa-solid fa-signal me-1"></i><?= h($pillTxt) ?></span>
-                    </div>
-
-                    <div class="pay-card-mid">
-                      <div class="pay-line">
-                        <div class="pay-k"><i class="fa-solid fa-book-open me-1"></i>Kursi</div>
-                        <div class="pay-v text-truncate" title="<?= h($course ?: '—') ?>"><?= h($course ?: '—') ?></div>
-                      </div>
-                      <div class="pay-line">
-                        <div class="pay-k"><i class="fa-regular fa-circle-play me-1"></i>Leksioni</div>
-                        <div class="pay-v text-truncate" title="<?= h($lesson ?: '—') ?>"><?= h($lesson ?: '—') ?></div>
-                      </div>
-                      <div class="pay-line">
-                        <div class="pay-k"><i class="fa-regular fa-clock me-1"></i>Data</div>
-                        <div class="pay-v"><?= h($dtView) ?></div>
-                      </div>
-                    </div>
-
-                    <div class="pay-card-bot">
-                      <div class="pay-amount">
-                        <div class="pay-amount-label">Shuma</div>
-                        <div class="pay-amount-value"><?= number_format($amount, 2) ?>€</div>
-                      </div>
-
-                      <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary pay-btn-edit"
-                                type="button" title="Modifiko"
-                                data-bs-toggle="modal" data-bs-target="#editPaymentModal">
-                          <i class="fa-regular fa-pen-to-square"></i>
-                        </button>
-                        <button class="btn btn-outline-success pay-btn-status" type="button" title="Shëno si Suksesshme" data-status="COMPLETED">
-                          <i class="fa-solid fa-check"></i>
-                        </button>
-                        <button class="btn btn-outline-warning pay-btn-status" type="button" title="Shëno si Dështuara" data-status="FAILED">
-                          <i class="fa-solid fa-xmark"></i>
-                        </button>
-                        <button class="btn btn-outline-danger"
-                                type="button" title="Fshi"
-                                data-bs-toggle="modal" data-bs-target="#deletePaymentModal">
-                          <i class="fa-regular fa-trash-can"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div class="pay-card-id">#PAY-<?= $pid ?></div>
-                  </article>
-                </div>
-              <?php endforeach; ?>
-            </div>
-          <?php endif; ?>
-        </section>
-
-        <!-- LIST VIEW -->
-        <section class="pay-list d-none" id="payList">
+        <section class="pay-list" id="payList">
           <?php if ($payments): ?>
-            <div class="table-responsive users-tablewrap">
-              <table class="table align-middle users-table">
+            <div class="table-responsive pay-tablewrap">
+              <table class="table align-middle pay-table">
                 <thead>
                   <tr>
                     <th style="width:90px;">ID</th>
@@ -853,7 +745,7 @@ function build_url(array $patch): string {
                         data-payment-date="<?= h($dtEdit) ?>">
                       <td class="text-muted fw-semibold">#<?= $pid ?></td>
                       <td>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2 pay-user-cell">
                           <div class="pay-avatar pay-avatar-sm"><?= h($avatar) ?></div>
                           <div>
                             <div class="fw-semibold"><?= h($name ?: '—') ?></div>
@@ -892,6 +784,15 @@ function build_url(array $patch): string {
                   <?php endforeach; ?>
                 </tbody>
               </table>
+            </div>
+          <?php else: ?>
+            <div class="course-empty">
+              <div class="icon"><i class="fa-regular fa-face-smile-beam"></i></div>
+              <div class="title">S’u gjet asnjë pagesë me këto filtra.</div>
+              <div class="subtitle">Provo të ndryshosh filtrat ose shto një pagesë të re.</div>
+              <button class="btn btn-primary course-btn-main" type="button" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                <i class="fa-solid fa-plus me-1"></i> Shto pagesë
+              </button>
             </div>
           <?php endif; ?>
         </section>
@@ -951,7 +852,6 @@ function build_url(array $patch): string {
       <input type="hidden" name="q"        value="<?= h($q) ?>">
       <input type="hidden" name="sort"     value="<?= h($sort) ?>">
       <input type="hidden" name="per_page" value="<?= (int)$per_page ?>">
-      <input type="hidden" name="view"     value="<?= h($view) ?>">
 
       <div>
         <label class="form-label">Statusi</label>
@@ -1223,30 +1123,6 @@ function showToast(type, msg){
 <?php if ($flash = get_flash()): ?>
   showToast(<?= json_encode($flash['type']) ?>, <?= json_encode($flash['msg']) ?>);
 <?php endif; ?>
-
-// ==================== View toggle (grid/list) ====================
-const grid = document.getElementById('payGrid');
-const list = document.getElementById('payList');
-const gBtn = document.getElementById('viewGridBtn');
-const lBtn = document.getElementById('viewListBtn');
-
-function setView(v){
-  localStorage.setItem('payments_view', v);
-  if (v === 'list') {
-    grid?.classList.add('d-none');
-    list?.classList.remove('d-none');
-    gBtn?.classList.remove('active');
-    lBtn?.classList.add('active');
-  } else {
-    list?.classList.add('d-none');
-    grid?.classList.remove('d-none');
-    lBtn?.classList.remove('active');
-    gBtn?.classList.add('active');
-  }
-}
-gBtn?.addEventListener('click', ()=> setView('grid'));
-lBtn?.addEventListener('click', ()=> setView('list'));
-setView(localStorage.getItem('payments_view') || 'grid');
 
 // ==================== Chart.js (pa ngjyra custom) ====================
 document.addEventListener('DOMContentLoaded', function () {
