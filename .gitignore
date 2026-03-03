@@ -1,3 +1,6 @@
 uploads/*
 courses/
 events/
+
+# Ignore any database.php file anywhere in the repo
+database.php
