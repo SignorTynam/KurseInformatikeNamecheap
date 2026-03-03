@@ -72,6 +72,26 @@ function parse_id(?string $q): ?int {
   return null;
 }
 
+function table_has_column(PDO $pdo, string $table, string $column): bool {
+  if (!preg_match('/^[A-Za-z0-9_]+$/', $table) || !preg_match('/^[A-Za-z0-9_]+$/', $column)) {
+    return false;
+  }
+  try {
+    $st = $pdo->prepare(
+      'SELECT 1
+       FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE()
+         AND TABLE_NAME = ?
+         AND COLUMN_NAME = ?
+       LIMIT 1'
+    );
+    $st->execute([$table, $column]);
+    return (bool)$st->fetchColumn();
+  } catch (Throwable $e) {
+    return false;
+  }
+}
+
 /* ------------------------------ Inputs ------------------------------ */
 $scope = strtolower((string)($_GET['scope'] ?? 'all'));
 $allowedScopes = ['all','users','courses','payments','messages','lessons','assignments','quizzes'];
@@ -99,13 +119,18 @@ $hiddenFlag       = (string)($_GET['hidden'] ?? ''); // 0|1|''
 
 $idValue   = parse_id($q);
 $isNumeric = is_numeric($q);
+$LESSONS_HAS_HIDDEN = table_has_column($pdo, 'lessons', 'hidden');
 
 /* ------------------------------ Search builders ------------------------------ */
 function search_users(PDO $pdo, string $qLike, string $roleFilter, string $statusFilter, ?string $from, ?string $to, int $page, int $perPage): array {
   [$per, $off] = paginate($page, $perPage);
 
-  $params = [':q' => $qLike];
-  $whereParts = ["(full_name LIKE :q OR email LIKE :q OR phone_number LIKE :q)"];
+  $params = [
+    ':q_full_name' => $qLike,
+    ':q_email' => $qLike,
+    ':q_phone' => $qLike,
+  ];
+  $whereParts = ["(full_name LIKE :q_full_name OR email LIKE :q_email OR phone_number LIKE :q_phone)"];
 
   if ($roleFilter && in_array($roleFilter, ['Administrator','Instruktor','Student'], true)) {
     $whereParts[] = "role = :role";
@@ -139,8 +164,12 @@ function search_users(PDO $pdo, string $qLike, string $roleFilter, string $statu
 function search_courses(PDO $pdo, string $qLike, string $status, string $category, ?string $from, ?string $to, int $page, int $perPage): array {
   [$per, $off] = paginate($page, $perPage);
 
-  $params = [':q' => $qLike];
-  $whereParts = ["(title LIKE :q OR description LIKE :q OR category LIKE :q)"];
+  $params = [
+    ':q_title' => $qLike,
+    ':q_description' => $qLike,
+    ':q_category' => $qLike,
+  ];
+  $whereParts = ["(title LIKE :q_title OR description LIKE :q_description OR category LIKE :q_category)"];
 
   if ($status && in_array($status, ['ACTIVE','INACTIVE','ARCHIVED'], true)) {
     $whereParts[] = "status = :st";
@@ -174,12 +203,16 @@ function search_courses(PDO $pdo, string $qLike, string $status, string $categor
 function search_payments(PDO $pdo, string $qLike, string $status, ?string $from, ?string $to, int $page, int $perPage, ?int $idValue, bool $isNumeric, string $qRaw): array {
   [$per, $off] = paginate($page, $perPage);
 
-  $params = [':q' => $qLike];
+  $params = [
+    ':q_user' => $qLike,
+    ':q_course' => $qLike,
+    ':q_amount' => $qLike,
+  ];
 
   $orParts = [
-    "u.full_name LIKE :q",
-    "c.title LIKE :q",
-    "CAST(p.amount AS CHAR) LIKE :q"
+    "u.full_name LIKE :q_user",
+    "c.title LIKE :q_course",
+    "CAST(p.amount AS CHAR) LIKE :q_amount"
   ];
 
   if ($isNumeric) {
@@ -230,13 +263,18 @@ function search_payments(PDO $pdo, string $qLike, string $status, ?string $from,
 function search_messages(PDO $pdo, string $qLike, string $read, ?string $from, ?string $to, int $page, int $perPage, ?int $idValue): array {
   [$per, $off] = paginate($page, $perPage);
 
-  $params = [':q' => $qLike];
+  $params = [
+    ':q_name' => $qLike,
+    ':q_email' => $qLike,
+    ':q_subject' => $qLike,
+    ':q_message' => $qLike,
+  ];
 
   $orParts = [
-    "name LIKE :q",
-    "email LIKE :q",
-    "subject LIKE :q",
-    "message LIKE :q"
+    "name LIKE :q_name",
+    "email LIKE :q_email",
+    "subject LIKE :q_subject",
+    "message LIKE :q_message"
   ];
   if ($idValue !== null) {
     $orParts[] = "id = :midExact";
@@ -268,13 +306,17 @@ function search_messages(PDO $pdo, string $qLike, string $read, ?string $from, ?
   return ['total'=>$total, 'rows'=>$stmt->fetchAll(PDO::FETCH_ASSOC) ?: []];
 }
 
-function search_lessons(PDO $pdo, string $qLike, ?string $from, ?string $to, string $hiddenFlag, int $page, int $perPage): array {
+function search_lessons(PDO $pdo, string $qLike, ?string $from, ?string $to, string $hiddenFlag, int $page, int $perPage, bool $hasHiddenColumn): array {
   [$per, $off] = paginate($page, $perPage);
 
-  $params = [':q' => $qLike];
-  $whereParts = ["(l.title LIKE :q OR l.description LIKE :q OR l.URL LIKE :q)"];
+  $params = [
+    ':q_title' => $qLike,
+    ':q_description' => $qLike,
+    ':q_url' => $qLike,
+  ];
+  $whereParts = ["(l.title LIKE :q_title OR l.description LIKE :q_description OR l.URL LIKE :q_url)"];
 
-  if ($hiddenFlag === '0' || $hiddenFlag === '1') {
+  if ($hasHiddenColumn && ($hiddenFlag === '0' || $hiddenFlag === '1')) {
     $whereParts[] = "l.hidden = :lh";
     $params[':lh'] = (int)$hiddenFlag;
   }
@@ -287,8 +329,10 @@ function search_lessons(PDO $pdo, string $qLike, ?string $from, ?string $to, str
   $stmtC->execute($params);
   $total = (int)$stmtC->fetchColumn();
 
+  $hiddenSelect = $hasHiddenColumn ? 'l.hidden' : '0 AS hidden';
+
   $stmt = $pdo->prepare("
-    SELECT l.id, l.title, l.uploaded_at, l.hidden,
+    SELECT l.id, l.title, l.uploaded_at, {$hiddenSelect},
            c.id AS course_id, c.title AS course_title
     FROM lessons l
     JOIN courses c ON c.id = l.course_id
@@ -304,8 +348,11 @@ function search_lessons(PDO $pdo, string $qLike, ?string $from, ?string $to, str
 function search_assignments(PDO $pdo, string $qLike, string $status, ?string $from, ?string $to, int $page, int $perPage): array {
   [$per, $off] = paginate($page, $perPage);
 
-  $params = [':q' => $qLike];
-  $whereParts = ["(a.title LIKE :q OR a.description LIKE :q)"];
+  $params = [
+    ':q_title' => $qLike,
+    ':q_description' => $qLike,
+  ];
+  $whereParts = ["(a.title LIKE :q_title OR a.description LIKE :q_description)"];
 
   if ($status && in_array($status, ['SUBMITTED','PENDING','GRADED','EXPIRED'], true)) {
     $whereParts[] = "a.status = :as";
@@ -337,8 +384,11 @@ function search_assignments(PDO $pdo, string $qLike, string $status, ?string $fr
 function search_quizzes(PDO $pdo, string $qLike, string $status, ?string $from, ?string $to, string $hiddenFlag, int $page, int $perPage): array {
   [$per, $off] = paginate($page, $perPage);
 
-  $params = [':q' => $qLike];
-  $whereParts = ["(q.title LIKE :q OR q.description LIKE :q)"];
+  $params = [
+    ':q_title' => $qLike,
+    ':q_description' => $qLike,
+  ];
+  $whereParts = ["(q.title LIKE :q_title OR q.description LIKE :q_description)"];
 
   if ($status && in_array($status, ['DRAFT','PUBLISHED','ARCHIVED'], true)) {
     $whereParts[] = "q.status = :qs";
@@ -389,7 +439,7 @@ try {
     $summary['courses']     = search_courses($pdo, $qLike, $courseStatus, $courseCategory, $from, $to, 1, 5);
     $summary['payments']    = search_payments($pdo, $qLike, $paymentStatus, $from, $to, 1, 5, $idValue, $isNumeric, $q);
     $summary['messages']    = search_messages($pdo, $qLike, $msgRead, $from, $to, 1, 5, $idValue);
-    $summary['lessons']     = search_lessons($pdo, $qLike, $from, $to, $hiddenFlag, 1, 5);
+    $summary['lessons']     = search_lessons($pdo, $qLike, $from, $to, $hiddenFlag, 1, 5, $LESSONS_HAS_HIDDEN);
     $summary['assignments'] = search_assignments($pdo, $qLike, $assignmentStatus, $from, $to, 1, 5);
     $summary['quizzes']     = search_quizzes($pdo, $qLike, $quizStatus, $from, $to, $hiddenFlag, 1, 5);
   } else {
@@ -407,7 +457,7 @@ try {
         $summary['messages'] = search_messages($pdo, $qLike, $msgRead, $from, $to, $page, $perPage, $idValue);
         break;
       case 'lessons':
-        $summary['lessons'] = search_lessons($pdo, $qLike, $from, $to, $hiddenFlag, $page, $perPage);
+        $summary['lessons'] = search_lessons($pdo, $qLike, $from, $to, $hiddenFlag, $page, $perPage, $LESSONS_HAS_HIDDEN);
         break;
       case 'assignments':
         $summary['assignments'] = search_assignments($pdo, $qLike, $assignmentStatus, $from, $to, $page, $perPage);
@@ -436,15 +486,28 @@ function pager(int $total, int $page, int $perPage): array {
 }
 
 $tabItems = [
-  'all'         => ['icon'=>'fa-grid-2','label'=>'All'],
-  'users'       => ['icon'=>'fa-user','label'=>'Users','count'=>$summary['users']['total']],
-  'courses'     => ['icon'=>'fa-book','label'=>'Courses','count'=>$summary['courses']['total']],
-  'payments'    => ['icon'=>'fa-credit-card','label'=>'Payments','count'=>$summary['payments']['total']],
-  'messages'    => ['icon'=>'fa-envelope','label'=>'Messages','count'=>$summary['messages']['total']],
-  'lessons'     => ['icon'=>'fa-book-open','label'=>'Lessons','count'=>$summary['lessons']['total']],
-  'assignments' => ['icon'=>'fa-list-check','label'=>'Assignments','count'=>$summary['assignments']['total']],
-  'quizzes'     => ['icon'=>'fa-circle-question','label'=>'Quizzes','count'=>$summary['quizzes']['total']],
+  'all'         => ['icon'=>'fa-grid-2','label'=>'Të gjitha'],
+  'users'       => ['icon'=>'fa-user','label'=>'Përdorues','count'=>$summary['users']['total']],
+  'courses'     => ['icon'=>'fa-book','label'=>'Kurse','count'=>$summary['courses']['total']],
+  'payments'    => ['icon'=>'fa-credit-card','label'=>'Pagesa','count'=>$summary['payments']['total']],
+  'messages'    => ['icon'=>'fa-envelope','label'=>'Mesazhe','count'=>$summary['messages']['total']],
+  'lessons'     => ['icon'=>'fa-book-open','label'=>'Leksione','count'=>$summary['lessons']['total']],
+  'assignments' => ['icon'=>'fa-list-check','label'=>'Detyra','count'=>$summary['assignments']['total']],
+  'quizzes'     => ['icon'=>'fa-circle-question','label'=>'Quiz-e','count'=>$summary['quizzes']['total']],
 ];
+
+$allTotal =
+  (int)$summary['users']['total'] +
+  (int)$summary['courses']['total'] +
+  (int)$summary['payments']['total'] +
+  (int)$summary['messages']['total'] +
+  (int)$summary['lessons']['total'] +
+  (int)$summary['assignments']['total'] +
+  (int)$summary['quizzes']['total'];
+
+$activeTotal = $scope === 'all' ? $allTotal : (int)($summary[$scope]['total'] ?? 0);
+$activeLabel = $tabItems[$scope]['label'] ?? 'Të gjitha';
+$hasDateRange = valid_date($from) || valid_date($to);
 
 ?>
 <!DOCTYPE html>
@@ -457,18 +520,19 @@ $tabItems = [
   <link rel="icon" href="image/favicon.ico" type="image/x-icon" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-  <link href="css/search.css?v=1" rel="stylesheet">
+  <link href="css/courses.css?v=1" rel="stylesheet">
+  <link href="css/search.css?v=2" rel="stylesheet">
 
 </head>
-<body class="search-body">
+<body class="course-body search-body">
 
 <?php include __DIR__ . '/navbar_logged_administrator.php'; ?>
 
-<section class="search-hero">
+<section class="course-hero search-hero">
   <div class="container">
     <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
       <div>
-        <div class="search-breadcrumb">
+        <div class="course-breadcrumb search-breadcrumb">
           <i class="fa-solid fa-house me-1"></i>
           <a href="dashboard_admin.php">Paneli</a> / Kërkim
         </div>
@@ -476,12 +540,28 @@ $tabItems = [
         <p class="mb-0">Gjej përdorues, kurse, pagesa, mesazhe, leksione, detyra dhe quiz-e.</p>
       </div>
 
-      <div class="search-meta">
-        <span class="chip"><i class="fa-solid fa-magnifying-glass"></i> <?= $q !== '' ? h($q) : '—' ?></span>
-        <?php if (valid_date($from) || valid_date($to)): ?>
-          <span class="chip"><i class="fa-regular fa-calendar"></i> <?= h($from ?: '…') ?> — <?= h($to ?: '…') ?></span>
-        <?php endif; ?>
-        <span class="chip"><i class="fa-regular fa-folder-open"></i> Scope: <?= h($scope) ?></span>
+      <div class="d-flex flex-wrap gap-2">
+        <div class="course-stat">
+          <div class="icon"><i class="fa-solid fa-layer-group"></i></div>
+          <div>
+            <div class="label">Scope</div>
+            <div class="value"><?= h($activeLabel) ?></div>
+          </div>
+        </div>
+        <div class="course-stat">
+          <div class="icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <div>
+            <div class="label">Rezultate</div>
+            <div class="value"><?= (int)$activeTotal ?></div>
+          </div>
+        </div>
+        <div class="course-stat">
+          <div class="icon"><i class="fa-regular fa-calendar"></i></div>
+          <div>
+            <div class="label">Datat</div>
+            <div class="value"><?= $hasDateRange ? h(($from ?: '…') . ' — ' . ($to ?: '…')) : 'Pa filtër' ?></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -490,7 +570,7 @@ $tabItems = [
 <main class="search-main">
   <div class="container">
 
-    <form class="search-panel" method="get" action="search.php">
+    <form class="search-panel course-toolbar" method="get" action="search.php">
       <div class="row g-2 align-items-end">
         <div class="col-12 col-lg-6">
           <label class="form-label">Fjalë kyçe</label>
@@ -518,10 +598,10 @@ $tabItems = [
       <div class="row g-2 mt-2">
 
         <div class="col-6 col-lg-2">
-          <label class="form-label">Scope</label>
+          <label class="form-label">Fusha</label>
           <select class="form-select" name="scope">
             <?php foreach ($allowedScopes as $sc): ?>
-              <option value="<?= $sc ?>" <?= $scope===$sc?'selected':'' ?>><?= ucfirst($sc) ?></option>
+              <option value="<?= $sc ?>" <?= $scope===$sc?'selected':'' ?>><?= h($tabItems[$sc]['label'] ?? ucfirst($sc)) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
@@ -626,7 +706,7 @@ $tabItems = [
       </div>
     </form>
 
-    <ul class="nav nav-pills search-tabs mt-3">
+    <ul class="nav nav-pills search-tabs course-status-tabs mt-3">
       <?php foreach ($tabItems as $key=>$it): ?>
         <li class="nav-item me-1 mb-1">
           <a class="nav-link <?= $scope===$key?'active':'' ?>" href="<?= h(tabUrl($key)) ?>">

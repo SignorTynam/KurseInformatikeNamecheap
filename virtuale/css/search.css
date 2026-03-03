@@ -12,33 +12,20 @@
 
 /* BAZA */
 .search-body{
-  background:#f3f4f6;
-  font-family:var(--brand-font);
   color:#111827;
 }
 
-/* HERO (si course-hero) */
+/* HERO */
 .search-hero{
-  background:#ffffff;
-  border-bottom:1px solid var(--border);
-  padding:1.25rem 0 1.05rem;
-  margin-bottom:1rem;
+  margin-bottom:.95rem;
 }
 .search-hero h1{
   margin:0;
-  font-weight:700;
-  letter-spacing:.01em;
-  font-size:clamp(1.5rem, 2vw + 1rem, 2.1rem);
-  color:#111827;
 }
 .search-hero p{
   margin:.2rem 0 0;
-  color:#4b5563;
-  font-size:.93rem;
 }
 .search-breadcrumb{
-  font-size:.85rem;
-  color:var(--muted);
   margin-bottom:.15rem;
 }
 .search-breadcrumb a{
@@ -47,38 +34,12 @@
 }
 .search-breadcrumb a:hover{ color:#111827; text-decoration:underline; }
 
-/* META chips (si course-chip) */
-.search-meta{
-  display:flex;
-  flex-wrap:wrap;
-  gap:.45rem;
-  justify-content:flex-start;
-}
-.search-meta .chip{
-  display:inline-flex;
-  align-items:center;
-  gap:.4rem;
-  padding:.3rem .75rem;
-  border-radius:999px;
-  background:#ffffff;
-  border:1px solid var(--border);
-  color:#4b5563;
-  font-size:.78rem;
-  text-decoration:none;
-  box-shadow:0 6px 18px rgba(15,23,42,.04);
-}
-.search-meta .chip i{ color:var(--primary); }
-
 /* MAIN */
 .search-main{ padding-bottom:2rem; }
 
-/* PANEL (si course-toolbar / sidebar card) */
+/* PANEL */
 .search-panel{
-  background:#ffffff;
-  border-radius:16px;
-  border:1px solid var(--border);
-  padding:.9rem .95rem 1rem;
-  box-shadow:var(--shadow-soft);
+  padding:.95rem 1rem 1.05rem;
 }
 .search-panel .form-label{
   font-size:.78rem;
@@ -87,9 +48,19 @@
 }
 .search-panel .form-control,
 .search-panel .form-select{
-  font-size:.84rem;
+  font-size:.85rem;
+  border-radius:.65rem;
 }
 .search-panel .form-control::placeholder{ color:#9ca3af; }
+.search-panel .input-group-text{
+  border-radius:.65rem 0 0 .65rem;
+}
+
+.search-panel .row + .row{
+  padding-top:.35rem;
+  margin-top:.35rem;
+  border-top:1px dashed #dbe3ef;
+}
 
 /* Butonë */
 .search-btn-main{
@@ -112,13 +83,12 @@
 
 /* Tabs / Pills (si course-status-tabs) */
 .search-tabs{
-  border-bottom:1px solid rgba(148,163,184,.35);
-  padding-bottom:.35rem;
+  padding-bottom:.2rem;
 }
 .search-tabs .nav-link{
   border-radius:999px;
-  font-size:.82rem;
-  padding:.3rem .75rem;
+  font-size:.8rem;
+  padding:.34rem .78rem;
   color:#4b5563;
 }
 .search-tabs .nav-link:hover{
@@ -133,7 +103,7 @@
   font-weight:700;
 }
 
-/* Cards (si course-card, por për rezultate) */
+/* Results card */
 .search-card{
   border-radius:var(--card-radius);
   border:1px solid var(--border);
@@ -144,15 +114,19 @@
 .search-card .card-header{
   background:#ffffff;
   border-bottom:1px solid var(--border);
+  padding:.82rem .95rem;
 }
 .search-card .card-header h5,
 .search-card .card-header h6{
   font-weight:700;
 }
+.search-card .card-body{
+  padding:.9rem .95rem;
+}
 
 /* Result row (si course list) */
 .result-row{
-  padding:.65rem 0;
+  padding:.72rem 0;
   border-bottom:1px dashed rgba(203,213,225,.85);
 }
 .result-row:last-child{ border-bottom:0; }
@@ -171,13 +145,32 @@
 }
 
 /* Tables */
-.table thead th{
+.search-card .table-responsive{
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:auto;
+}
+.search-card .table{
+  margin-bottom:0;
+}
+.search-card .table thead th{
+  background:#f8fafc;
   font-size:.78rem;
-  color:#6b7280;
+  color:#475569;
   font-weight:700;
-  text-transform:none;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+.search-card .table td,
+.search-card .table th{
+  padding:.68rem .62rem;
 }
 .table > :not(caption) > * > *{ background-color:transparent; }
+
+.search-card .table tbody tr:hover{
+  background:#f8fafc;
+}
 
 /* Highlight (si ke te course) */
 .hl mark{
@@ -208,8 +201,14 @@
   border-color:var(--primary);
 }
 
+.search-main > .container > .btn,
+.search-main .text-center .btn{
+  border-radius:999px;
+}
+
 /* Responsive */
 @media (max-width: 576px){
   .search-hero{ padding:1rem 0 .9rem; }
-  .search-meta .chip{ font-size:.75rem; }
+  .search-panel{ padding:.8rem .78rem .9rem; }
+  .search-tabs .nav-link{ font-size:.76rem; }
 }
