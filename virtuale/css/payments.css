@@ -1,0 +1,185 @@
+/* payments.css — shtesë UI për payments.php (mbi courses.css) */
+
+.pay-viewbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+  flex-wrap:wrap;
+}
+.pay-viewtabs{
+  display:inline-flex;
+  gap:.35rem;
+  padding:.25rem;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:#fff;
+  box-shadow:0 6px 18px rgba(15,23,42,.04);
+}
+.pay-viewbtn{
+  border:0;
+  background:transparent;
+  border-radius:999px;
+  padding:.35rem .75rem;
+  font-size:.82rem;
+  color:#4b5563;
+  cursor:pointer;
+}
+.pay-viewbtn.active{
+  background:var(--primary);
+  color:#fff;
+}
+.pay-mini{
+  font-size:.85rem;
+}
+
+.pay-chip-cta{
+  cursor:pointer;
+  border:1px solid var(--border);
+  background:#fff;
+}
+
+/* Chart block */
+.pay-chart{
+  overflow:hidden;
+}
+.pay-chart-title{
+  font-weight:700;
+  color:#111827;
+}
+.pay-chart-sub{
+  font-size:.85rem;
+  color:#6b7280;
+}
+.pay-chart-canvas{
+  margin-top:.75rem;
+  min-height:280px;
+}
+
+/* Payment card */
+.pay-card{
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:#fff;
+  box-shadow:var(--shadow-soft);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.pay-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 32px rgba(15,23,42,.16);
+}
+
+.pay-card-top{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  padding:.85rem .9rem .65rem;
+  border-bottom:1px solid rgba(148,163,184,.22);
+}
+.pay-avatar{
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  background:var(--primary-dark);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:.95rem;
+}
+.pay-avatar-sm{
+  width:34px;
+  height:34px;
+  font-size:.85rem;
+}
+.pay-title{
+  font-weight:700;
+  color:#111827;
+  line-height:1.1;
+}
+.pay-sub{
+  font-size:.82rem;
+  color:#6b7280;
+  margin-top:.1rem;
+}
+.pay-status{
+  margin-left:auto;
+  font-size:.72rem;
+  font-weight:700;
+  padding:.22rem .55rem;
+  border-radius:999px;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+}
+.pay-status-ok{
+  background:#ecfdf5;
+  color:#166534;
+}
+.pay-status-bad{
+  background:#fff7ed;
+  color:#9a3412;
+}
+
+.pay-card-mid{
+  padding:.75rem .9rem .45rem;
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+}
+.pay-line{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:.75rem;
+}
+.pay-k{
+  font-size:.78rem;
+  color:#64748b;
+  flex:0 0 auto;
+}
+.pay-v{
+  font-size:.85rem;
+  color:#0f172a;
+  text-align:right;
+}
+
+.pay-card-bot{
+  margin-top:auto;
+  padding:.75rem .9rem .9rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+}
+.pay-amount-label{
+  font-size:.75rem;
+  color:#6b7280;
+}
+.pay-amount-value{
+  font-size:1.05rem;
+  font-weight:800;
+  color:#0f172a;
+}
+
+.pay-card-id{
+  position:absolute;
+  top:10px;
+  right:10px;
+  font-size:.72rem;
+  color:#94a3b8;
+  background:#ffffffcc;
+  border:1px solid var(--border);
+  padding:.15rem .45rem;
+  border-radius:999px;
+}
+
+/* Buttons */
+.pay-btn-edit{
+  border-radius:10px;
+}

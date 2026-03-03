@@ -1,0 +1,73 @@
+:root {
+  --primary:#2A4B7C;
+  --primary-dark:#1d3a63;
+  --secondary:#F0B323;
+  --accent:#FF6B6B;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --card-radius:18px;
+  --shadow-soft:0 8px 22px rgba(15,23,42,.06);
+  --brand-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+
+/* BAZA */
+.course-body{
+  background:#f3f4f6;
+  font-family:var(--brand-font);
+}
+
+/* HERO */
+.course-hero{
+  background-color: #ffffff;
+  border-bottom:1px solid var(--border);
+  padding:1.3rem 0 1.1rem;
+  margin-bottom:1rem;
+}
+.course-hero h1{
+  margin:0;
+  font-weight:700;
+  letter-spacing:.01em;
+  font-size:clamp(1.5rem, 2vw + 1rem, 2.1rem);
+  color:#111827;
+}
+.course-hero p{
+  margin:.2rem 0 0;
+  color:#4b5563;
+  font-size:.93rem;
+}
+.course-breadcrumb{
+  font-size:.85rem;
+  color: var(--muted);
+  margin-bottom:.15rem;
+}
+
+/* STAT CARDS */
+.course-stat{
+  background:#fff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:.5rem .75rem;
+  display:flex;
+  align-items:center;
+  gap:.55rem;
+  box-shadow:0 6px 18px rgba(15,23,42,.04);
+}
+.course-stat .icon{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eff6ff;
+  color: var(--primary);
+  font-size:1rem;
+}
+.course-stat .label{
+  font-size:.78rem;
+  color:#6b7280;
+}
+.course-stat .value{
+  font-size:1.1rem;
+  font-weight:700;
+}

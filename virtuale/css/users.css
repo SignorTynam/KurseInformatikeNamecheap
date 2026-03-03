@@ -1,0 +1,258 @@
+/* =========================================================
+   users.css — UI/UX Revamp (unifikuar me courses.css)
+   Kërkon: courses.css të ngarkohet PARA këtij skedari
+   ========================================================= */
+
+/* ----------------------------
+   View toggle (Grid / List)
+----------------------------- */
+.users-viewbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+}
+.users-viewtabs{
+  display:inline-flex;
+  gap:8px;
+  padding:6px;
+  border-radius:999px;
+  background:#ffffff;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-soft);
+}
+.users-viewbtn{
+  border:0;
+  background:transparent;
+  color:#4b5563;
+  font-size:.82rem;
+  font-weight:600;
+  padding:.35rem .75rem;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  transition:background-color .15s ease, color .15s ease, transform .15s ease;
+}
+.users-viewbtn:hover{
+  background:#f3f4f6;
+  color:#111827;
+}
+.users-viewbtn.active{
+  background:var(--primary);
+  color:#ffffff;
+}
+
+/* ----------------------------
+   Grid wrapper
+----------------------------- */
+.users-grid{ margin-top:.2rem; }
+
+/* ----------------------------
+   User Card (Grid)
+----------------------------- */
+.user-card{
+  border-radius:var(--card-radius);
+  border:1px solid var(--border);
+  background:#ffffff;
+  box-shadow:var(--shadow-soft);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  transition:box-shadow .18s ease, transform .18s ease;
+}
+.user-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 32px rgba(15,23,42,.16);
+}
+
+.user-card-top{
+  display:flex;
+  align-items:flex-start;
+  gap:.75rem;
+  padding:.85rem .9rem .75rem;
+  border-bottom:1px solid rgba(148,163,184,.25);
+}
+
+.user-avatar{
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  background:var(--primary-dark);
+  color:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:.9rem;
+  flex:0 0 auto;
+  box-shadow:0 10px 24px rgba(29,58,99,.18);
+}
+.user-avatar-sm{
+  width:34px;
+  height:34px;
+  font-size:.82rem;
+  box-shadow:none;
+}
+
+.user-name{
+  margin:0;
+  font-weight:700;
+  color:#111827;
+  letter-spacing:.01em;
+  line-height:1.15;
+}
+.user-sub{
+  margin-top:.15rem;
+  font-size:.82rem;
+  color:#6b7280;
+  word-break:break-word;
+  display:flex;
+  align-items:center;
+  gap:.35rem;
+}
+
+.user-status-pill{
+  margin-left:auto;
+  font-size:.72rem;
+  font-weight:600;
+  padding:.22rem .55rem;
+  border-radius:.7rem;
+  white-space:nowrap;
+  align-self:flex-start;
+  border:1px solid transparent;
+}
+.user-status-approved{
+  background:#ecfdf5;
+  color:#166534;
+  border-color:#bbf7d0;
+}
+.user-status-pending{
+  background:#fff7ed;
+  color:#9a3412;
+  border-color:#fed7aa;
+}
+.user-status-rejected{
+  background:#fee2e2;
+  color:#991b1b;
+  border-color:#fecaca;
+}
+
+.user-card-mid{
+  padding:.75rem .9rem .8rem;
+}
+.user-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.45rem .6rem;
+  font-size:.8rem;
+  color:#4b5563;
+}
+.user-meta span{
+  display:inline-flex;
+  align-items:center;
+}
+.user-meta span + span::before{
+  content:"•";
+  margin:0 .25rem 0 .15rem;
+  opacity:.45;
+}
+.user-created{
+  margin-top:.55rem;
+  font-size:.82rem;
+}
+
+.user-card-actions{
+  padding:.7rem .9rem .85rem;
+  border-top:1px solid rgba(148,163,184,.25);
+  display:flex;
+  justify-content:flex-end;
+}
+
+/* Butonat në card – lehtë unifikim me style-in e faqes */
+.user-card .btn-group .btn{
+  border-radius:999px;
+}
+.user-card .btn-outline-secondary,
+.user-card .btn-outline-danger{
+  font-size:.82rem;
+}
+
+/* ----------------------------
+   List View (Table)
+----------------------------- */
+.users-list{ margin-top:.2rem; }
+
+.users-tablewrap{
+  border-radius:var(--card-radius);
+  border:1px solid var(--border);
+  background:#ffffff;
+  box-shadow:var(--shadow-soft);
+  overflow:hidden;
+}
+
+/* Tabelë e pastër, si card */
+.users-table{
+  margin-bottom:0;
+}
+.users-table thead th{
+  background:#f9fafb;
+  border-bottom:1px solid var(--border) !important;
+  color:#4b5563;
+  font-size:.78rem;
+  font-weight:700;
+  letter-spacing:.02em;
+  padding:.75rem .85rem;
+  vertical-align:middle;
+}
+.users-table tbody td{
+  border-bottom:1px solid rgba(229,231,235,.7);
+  padding:.75rem .85rem;
+  vertical-align:middle;
+  font-size:.88rem;
+}
+.users-table tbody tr:hover{
+  background:#fafafa;
+}
+
+/* Kolona “Veprime” më kompakte */
+.users-table .btn-group .btn{
+  border-radius:999px;
+  font-size:.82rem;
+}
+
+/* Status pill brenda tabelës */
+.users-table .user-status-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ----------------------------
+   “Empty state” (nëse do përdoret edhe në users)
+   (course-empty tashmë e ka courses.css, këtu vetëm tweak opsional)
+----------------------------- */
+.users-empty-tight .course-empty{
+  padding:1.4rem 1.1rem;
+}
+
+/* ----------------------------
+   Modal tweaks (opsionale)
+----------------------------- */
+#deleteUserModal .modal-header{
+  border-bottom:1px solid rgba(229,231,235,.7);
+}
+#deleteUserModal .modal-footer{
+  border-top:1px solid rgba(229,231,235,.7);
+}
+
+/* ----------------------------
+   Responsivitet i vogël
+----------------------------- */
+@media (max-width: 576px){
+  .users-viewtabs{ width:100%; justify-content:space-between; }
+  .users-viewbtn{ flex:1; justify-content:center; }
+  .user-card-top{ padding:.75rem .8rem .7rem; }
+  .user-card-mid{ padding:.65rem .8rem .75rem; }
+  .user-card-actions{ padding:.65rem .8rem .75rem; }
+  .users-table thead th, .users-table tbody td{ padding:.65rem .7rem; }
+}

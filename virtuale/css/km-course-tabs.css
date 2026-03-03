@@ -1,0 +1,301 @@
+/* ==========================================================
+   km-course-tabs.css — Shared UI for course tabs (2026)
+   Used by: tabs/course_* and tabs_student/*
+   Depends on Bootstrap; pairs well with course_panel.css variables.
+   ========================================================== */
+
+:root{
+  --km-primary: var(--primary, #2A4B7C);
+  --km-primary-dark: var(--primary-dark, #1d3a63);
+  --km-muted: var(--muted, #6b7280);
+  --km-border: var(--border, #e5e7eb);
+  --km-card-radius: var(--card-radius, 18px);
+  --km-shadow-soft: var(--shadow-soft, 0 8px 22px rgba(15,23,42,.06));
+  --km-shadow-mid: 0 14px 34px rgba(15,23,42,.12);
+}
+
+/* ---------------- Generic card wrapper ---------------- */
+.cardx{
+  background:#fff;
+  border:1px solid var(--km-border);
+  border-radius: var(--km-card-radius);
+  box-shadow: var(--km-shadow-soft);
+  padding: 14px;
+}
+
+/* ---------------- Pills / chips ---------------- */
+.chip{
+  background:#fff;
+  border:1px solid rgba(232,236,244,.95);
+  border-radius:999px;
+  padding:6px 10px;
+  box-shadow: var(--km-shadow-soft);
+  font-size:.9rem;
+}
+
+/* ---------------- Primary pill button ---------------- */
+.btn-moodle{
+  background: var(--km-primary);
+  color:#fff;
+  border:0;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.btn-moodle:hover{
+  background: var(--km-primary-dark);
+  color:#fff;
+}
+
+/* Make action buttons feel consistent in tab toolbars */
+.forum-toolbar .btn,
+.sched-toolbar .btn,
+.people-toolbar .btn,
+.pay-toolbar .btn{
+  border-radius: 999px;
+}
+
+/* ---------------- FAB dock (bottom-right) ---------------- */
+#peopleFabDock,
+#scheduleFabDock,
+#paymentsFabDock,
+#forumFabDock,
+.fab-dock{
+  position:fixed;
+  right:20px;
+  bottom:22px;
+  z-index:1060;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+}
+
+.fab-mini{
+  width:48px;
+  height:48px;
+  background:#fff;
+  color: var(--km-primary);
+  border:1px solid #dbe4ff;
+  border-radius:999px;
+  font-size:1.1rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 12px 28px rgba(0,0,0,.2);
+}
+.fab-mini:hover{ background:#f8fbff; }
+
+/* ---------------- Toast fallback ---------------- */
+#toastZone{ position:fixed; right:16px; bottom:16px; z-index:1100; }
+.toast.kurse{
+  background:#ffffff;
+  border:1px solid rgba(232,236,244,.95);
+  box-shadow: var(--km-shadow-soft);
+  border-radius:12px;
+  overflow:hidden;
+}
+.toast.kurse .toast-header{ background:linear-gradient(135deg,var(--km-primary),var(--km-primary-dark)); color:#fff; }
+.toast.kurse .btn-close{ filter:invert(1); }
+
+/* ==========================================================
+   FORUM
+   ========================================================== */
+.forum-wrap{ display:flex; flex-direction:column; gap:12px; }
+.forum-toolbar{
+  background:#fff;
+  border:1px solid rgba(232,236,244,.95);
+  border-radius:14px;
+  box-shadow: var(--km-shadow-soft);
+  padding:12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+}
+.forum-toolbar .left{ gap:10px; flex:1 1 auto; display:flex; flex-wrap:wrap; align-items:center; }
+.forum-stats .chip{ box-shadow: var(--km-shadow-soft); }
+.forum-toolbar .right{ display:flex; align-items:center; gap:10px; flex:1 1 auto; justify-content:flex-end; flex-wrap:nowrap; }
+.forum-toolbar .right .input-group{ flex:0 1 340px; min-width:280px; }
+.forum-toolbar .right select.form-select{ width:auto; }
+@media (max-width: 991.98px){
+  .forum-toolbar .right{ flex-wrap:wrap; justify-content:stretch; }
+  .forum-toolbar .right .input-group{ flex:1 1 100%; min-width:0; }
+}
+
+.thread-list{ display:grid; grid-template-columns:1fr; gap:10px; }
+@media (min-width: 768px){ .thread-list{ grid-template-columns:1fr 1fr; } }
+.thread-card{
+  background:#fff;
+  border:1px solid rgba(232,236,244,.95);
+  border-radius:14px;
+  box-shadow: var(--km-shadow-soft);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  position:relative;
+}
+.thread-card .title{ font-weight:800; margin:0; }
+.thread-card .meta{ color:#64748b; font-size:.85rem; display:flex; gap:12px; flex-wrap:wrap; }
+.thread-card .actions{ position:absolute; right:10px; top:10px; display:flex; gap:6px; opacity:0; transition:opacity .15s ease; }
+.thread-card:hover .actions{ opacity:1; }
+.thread-card .badge{ border:1px solid rgba(232,236,244,.95); }
+.forum-empty{ text-align:center; color:#6b7280; padding:36px 12px; }
+
+.md-snippet{
+  color: var(--km-muted);
+  font-size:.95rem;
+  display:-webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.md-snippet p,
+.md-snippet ul,
+.md-snippet ol,
+.md-snippet pre,
+.md-snippet blockquote{ margin:0 0 .35rem; }
+.md-snippet code{ padding:.1rem .25rem; border-radius:.35rem; background:#f3f4f6; }
+.md-snippet pre{ max-height:120px; overflow:auto; background:#f8fafc; padding:.5rem .75rem; border-radius:10px; }
+.md-snippet h1,
+.md-snippet h2,
+.md-snippet h3,
+.md-snippet h4{ font-size:1rem; margin:.15rem 0; }
+
+/* ==========================================================
+   SCHEDULE
+   ========================================================== */
+.sched-wrap{ display:flex; flex-direction:column; gap:12px; }
+
+.sched-toolbar{
+  background:#fff;
+  border:1px solid rgba(232,236,244,.95);
+  border-radius:16px;
+  box-shadow: var(--km-shadow-soft);
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:space-between;
+}
+.sched-toolbar .chips{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; flex:0 1 auto; }
+
+.sched-toolbar .actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex: 1 1 560px;
+  justify-content:flex-end;
+  flex-wrap:nowrap;
+  white-space:nowrap;
+}
+.sched-toolbar .searchbox{ flex:1 1 360px; min-width:260px; }
+.sched-toolbar select.form-select{ width:auto; min-width:160px; border-radius: 999px; }
+
+.sched-list{ display:grid; grid-template-columns:1fr; gap:12px; }
+@media (min-width: 768px){ .sched-list{ grid-template-columns:1fr 1fr; } }
+
+.appt-card{
+  background:#fff;
+  border:1px solid rgba(232,236,244,.95);
+  border-radius:16px;
+  box-shadow: var(--km-shadow-soft);
+  padding:14px;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.appt-title{ margin:0; font-weight:900; }
+.appt-card .meta{ color:#64748b; font-size:.9rem; display:flex; gap:12px; flex-wrap:wrap; }
+.appt-actions{ display:flex; gap:6px; flex-wrap:wrap; }
+
+@media (max-width: 992px){
+  .sched-toolbar{ gap:10px; }
+  .sched-toolbar .actions{ flex:1 1 100%; flex-wrap:wrap; justify-content:stretch; white-space:normal; }
+  .sched-toolbar .searchbox{ flex:1 1 100%; min-width:0; }
+}
+
+/* ==========================================================
+   PEOPLE
+   ========================================================== */
+.people-wrap{ display:flex; flex-direction:column; gap:12px; }
+.people-toolbar{
+  background:#fff;
+  border:1px solid rgba(232,236,244,.95);
+  border-radius:16px;
+  box-shadow: var(--km-shadow-soft);
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:space-between;
+}
+.people-toolbar .stats{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.people-toolbar .searchbox{ flex:1 1 360px; min-width:260px; }
+
+.people-grid{ display:grid; grid-template-columns:1fr; gap:12px; }
+@media (min-width: 576px){ .people-grid{ grid-template-columns:1fr 1fr; } }
+@media (min-width: 992px){ .people-grid{ grid-template-columns:1fr 1fr 1fr; } }
+
+.person-card{
+  position:relative;
+  background:#fff;
+  border:1px solid rgba(232,236,244,.95);
+  border-radius:16px;
+  box-shadow: var(--km-shadow-soft);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.avatar{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  background:#eef2ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  color:#1e293b;
+}
+.person-meta small{ color:#6b7280; }
+.card-actions{ position:absolute; right:8px; top:8px; }
+
+/* ==========================================================
+   PAYMENTS
+   ========================================================== */
+.pay-toolbar{
+  background:#fff;
+  border:1px solid rgba(232,236,244,.95);
+  border-radius:16px;
+  box-shadow: var(--km-shadow-soft);
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:space-between;
+}
+.pay-toolbar .chips{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pay-toolbar .actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:1 1 640px;
+  justify-content:flex-end;
+  flex-wrap:nowrap;
+  white-space:nowrap;
+}
+.pay-toolbar .searchbox{ flex:1 1 380px; min-width:260px; }
+.pay-toolbar select.form-select{ width:auto; min-width:160px; border-radius:999px; }
+@media (max-width: 992px){
+  .pay-toolbar .actions{ flex:1 1 100%; flex-wrap:wrap; justify-content:stretch; white-space:normal; }
+  .pay-toolbar .searchbox{ flex:1 1 100%; min-width:0; }
+}

@@ -1,0 +1,634 @@
+/* =========================================================
+   KM Materials — Layout & Palette
+   ========================================================= */
+
+.km-mat-root {
+  /* Paletë & variabla */
+  --km-mat-primary:        #2A4B7C;
+  --km-mat-primary-dark:   #1d3a63;
+  --km-mat-soft-bg:        #f6f8fb;
+  --km-mat-shadow:         0 10px 28px rgba(15,23,42,.10);
+  --km-mat-shadow-soft:    0 6px 18px rgba(15,23,42,.06);
+  --km-mat-sub-indent:     42px;
+  --km-mat-border-soft:    #e5e7eb;
+  --km-mat-border-strong:  #d0d7e6;
+  --km-mat-highlight-bg:   #f7fbff;
+  --km-mat-nav-bg:         #ffffff;
+
+  /* alias që i përdorim në stil */
+  --primary:       var(--km-mat-primary);
+  --primary-dark:  var(--km-mat-primary-dark);
+  --shadow:        var(--km-mat-shadow);
+  --sub-indent:    var(--km-mat-sub-indent);
+}
+
+/* Button consistency inside materials */
+.km-mat-root .btn,
+.km-mat-root .form-select,
+.km-mat-root .form-control {
+  border-radius: 999px;
+}
+
+.km-mat-root .btn.btn-sm {
+  padding: .32rem .75rem;
+  font-weight: 500;
+}
+
+/* rreshti kryesor */
+#materialsRow {
+  align-items: stretch;
+}
+
+/* =========================================================
+   Kolonat anësore (sticky)
+   ========================================================= */
+
+.km-mat-left-col-sticky,
+.km-mat-right-col-sticky {
+  position: sticky;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* =========================================================
+   NAV majtas + pace djathtas
+   ========================================================= */
+
+.km-mat-nav,
+.km-mat-pace,
+.km-mat-summary {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid var(--km-mat-border-soft);
+  box-shadow: var(--km-mat-shadow-soft);
+  padding: 12px;
+}
+
+/* NAV seksionet */
+
+.km-mat-nav-section {
+  margin-bottom: 10px;
+}
+
+.km-mat-nav-toggle {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .15s ease, transform .08s ease;
+}
+
+.km-mat-nav-toggle:hover {
+  background: #eef2ff;
+  transform: translateY(-1px);
+}
+
+.km-mat-nav-section ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding-left: 8px;
+  display: none;
+}
+
+.km-mat-nav-section.open ul {
+  display: block;
+}
+
+.km-mat-nav-item {
+  display: block;
+  padding: 6px 8px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #334155;
+  font-size: .96rem;
+}
+
+.km-mat-nav-item:hover {
+  background: #f1f5f9;
+}
+
+.km-mat-nav-item.active {
+  background: #e7f1ff;
+  border: 1px solid rgba(42,75,124,.18);
+}
+
+.km-mat-nav i.bi {
+  font-size: 1.1rem;
+}
+
+/* =========================================================
+   Përmbledhja djathtas
+   ========================================================= */
+
+.km-mat-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.km-mat-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.km-mat-summary-item {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.km-mat-summary-item .label {
+  font-size: .8rem;
+  color: #6b7280;
+}
+
+.km-mat-summary-item .value {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.km-mat-summary-meta{
+  font-size: .85rem;
+  color: #4b5563;
+}
+
+/* Paneli i studentëve */
+
+.km-mat-student .progress {
+  height: 5px;
+  border-radius: 10px;
+}
+
+.km-mat-student .progress-bar {
+  border-radius: 10px;
+}
+
+/* Student card in admin pace box */
+.km-mat-student{
+  padding: 10px 12px;
+  border: 1px solid #eef2f7;
+  background: #f8fafc;
+  border-radius: 14px;
+  margin-bottom: 10px !important;
+}
+
+/* Badge i butë “Fshehur” */
+
+.km-mat-badge-soft {
+  background: #f9fafb;
+  color: #6b7280;
+  border-radius: 999px;
+}
+
+/* =========================================================
+   Seksionet (accordion qendër)
+   ========================================================= */
+
+.anchor-target {
+  scroll-margin-top: 120px;
+}
+
+.km-mat-section-accordion .km-mat-sec-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: var(--km-mat-shadow-soft);
+  overflow: hidden;
+  border: 1px solid var(--km-mat-border-soft);
+}
+
+.km-mat-sec-card.km-mat-sec-highlighted {
+  border-color: var(--primary);
+  box-shadow: 0 8px 28px rgba(42,75,124,.18);
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+}
+
+.km-mat-sec-card.km-mat-sec-hidden {
+  opacity: .75;
+}
+
+/* header i seksionit */
+
+.km-mat-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eef2f7;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.km-mat-sec-title-line {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.km-mat-sec-title-line .bi {
+  font-size: 1.05rem;
+}
+
+/* butoni i shpejtë i dukshmërisë + toggle */
+
+.km-mat-sec-quick-toggle.btn {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: .9rem;
+}
+
+.km-mat-sec-toggle {
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.km-mat-sec-toggle:hover {
+  background: var(--primary-dark);
+}
+
+/* përshkrimi i seksionit */
+
+.km-mat-sec-desc {
+  border-bottom: 1px solid #eef2f7;
+}
+
+/* trupi i seksionit */
+
+.km-mat-sec-body {
+  padding: 10px 0;
+}
+
+/* =========================================================
+   Materialet / elementet brenda seksionit
+   ========================================================= */
+
+.km-mat-items {
+  padding-top: 4px;
+}
+
+/* një element */
+
+.km-mat-elem {
+  transition: background .15s ease;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.km-mat-elem:last-child {
+  border-bottom: 0;
+}
+
+.km-mat-elem:hover {
+  background: #f9fbff;
+}
+
+.km-mat-elem-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1 1 auto;
+}
+
+.km-mat-elem-left .text-muted,
+.km-mat-elem-left .small{
+  color: #6b7280 !important;
+}
+
+.km-mat-elem-hidden {
+  opacity: .55;
+}
+
+/* drag handle */
+
+.km-mat-drag-handle,
+.km-mat-sec-drag {
+  cursor: grab;
+  opacity: .7;
+  display: none;
+  user-select: none;
+}
+
+/* checkboxes për zgjedhje */
+
+.km-mat-selbox {
+  display: none;
+}
+
+/* aksionet e itemit (pencil/trash) */
+
+.km-mat-item-actions {
+  opacity: 0;
+  transition: opacity .15s;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Show actions on hover (safe because destructive buttons are still gated by .only-edit) */
+.km-mat-elem:hover .km-mat-item-actions {
+  opacity: 1;
+}
+
+/* ikona rrethore për Leksion / Detyrë / Quiz */
+
+.km-mat-elem-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.km-mat-elem-icon-rounded {
+  border-radius: 999px;
+  background: rgba(42,75,124,.12);
+  color: #fff;
+  background: var(--km-mat-icon-bg, rgba(42,75,124,.12));
+}
+
+.km-mat-elem-icon-rounded i {
+  color: #fff;
+}
+
+/* =========================================================
+   TEXT blocks & nënseksionet
+   ========================================================= */
+
+.km-mat-text-block .km-mat-md-body p,
+.km-mat-text-block .km-mat-md-body ul,
+.km-mat-text-block .km-mat-md-body ol,
+.km-mat-text-block .km-mat-md-body pre,
+.km-mat-text-block .km-mat-md-body code,
+.km-mat-text-block .km-mat-md-body blockquote,
+.km-mat-text-block .km-mat-md-body h1,
+.km-mat-text-block .km-mat-md-body h2,
+.km-mat-text-block .km-mat-md-body h3,
+.km-mat-text-block .km-mat-md-body h4 {
+  margin-bottom: .5rem;
+}
+
+.km-mat-text-block .km-mat-md-body pre {
+  background: #0b1220;
+  color: #e5e7eb;
+  padding: .65rem .85rem;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.km-mat-text-block .km-mat-md-body code {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: .05rem .35rem;
+  border-radius: 8px;
+  font-size: .9em;
+}
+
+.km-mat-text-block .km-mat-md-body pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+}
+
+/* nënseksionet (kur TEXT përdoret si “divider”) */
+
+.km-mat-elem.km-mat-subsection-start .km-mat-md-body > :first-child {
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+}
+
+.km-mat-elem.km-mat-subchild {
+  position: relative;
+  margin-left: var(--sub-indent);
+  padding-left: 14px;
+  border-bottom-style: solid;
+  border-bottom-color: #eef2f7;
+}
+
+/* =========================================================
+   Add-blocks në fund të seksionit
+   ========================================================= */
+
+.km-mat-add-blocks {
+  display: none;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px dashed #e5e7eb;
+  background: #fcfdff;
+}
+
+.km-mat-add-block-card {
+  flex: 1 1 180px;
+  min-width: 180px;
+  border: 2px dashed #dbe3f0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: #fff;
+  box-shadow: var(--km-mat-shadow-soft);
+  transition: transform .08s ease,
+              background .08s ease,
+              border-color .08s ease;
+}
+
+.km-mat-add-block-card:hover {
+  background: #f5f9ff;
+  border-color: #c6d4ee;
+  transform: translateY(-1px);
+}
+
+.km-mat-add-block-card i {
+  font-size: 1.25rem;
+}
+
+/* =========================================================
+   “Shto seksion” & “Kopjo seksion(e)” global
+   ========================================================= */
+
+.km-mat-add-section-global {
+  display: none;
+  border: 2px dashed #cfe2ff;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 16px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: var(--km-mat-shadow-soft);
+}
+
+.km-mat-add-section-global:hover {
+  background: #f6fbff;
+}
+
+/* =========================================================
+   Bulk toolbars (sipër listës)
+   ========================================================= */
+
+.km-mat-bulkbar {
+  position: sticky;
+  top: 8px;
+  z-index: 1020;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--km-mat-border-soft);
+  box-shadow: var(--km-mat-shadow-soft);
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.km-mat-bulkbar .count {
+  font-weight: 600;
+}
+
+/* =========================================================
+   FAB mini (butonat lart djathtas)
+   ========================================================= */
+
+.km-mat-fab-col {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  z-index: 1060;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.km-mat-fab {
+  width: 48px;
+  height: 48px;
+  background: #fff;
+  color: #2A4B7C;
+  border: 1px solid #dbe4ff;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 28px rgba(0,0,0,.2);
+}
+
+.km-mat-fab:hover {
+  background: #f8fbff;
+}
+
+/* fab të tjerë veç toggleEdit */
+
+.km-mat-fab[data-action]:not([data-action="toggleEdit"]) {
+  display: none;
+}
+
+/* =========================================================
+   Edit mode (body.km-mat-edit)
+   ========================================================= */
+
+/* kur është ON */
+
+body.km-mat-edit .km-mat-drag-handle,
+body.km-mat-edit .km-mat-sec-drag {
+  display: inline-block;
+}
+
+body.km-mat-edit .km-mat-item-actions {
+  opacity: 1;
+}
+
+body.km-mat-edit .km-mat-add-blocks {
+  display: flex;
+}
+
+body.km-mat-edit .km-mat-add-section-global {
+  display: flex;
+}
+
+body.km-mat-edit .km-mat-fab[data-action]:not([data-action="toggleEdit"]) {
+  display: flex;
+}
+
+body.km-mat-edit .km-mat-sec-gear {
+  display: block;
+}
+
+body.km-mat-edit .km-mat-selbox {
+  display: inline-block;
+}
+
+body.km-mat-edit .km-mat-bulkbar {
+  display: flex;
+}
+
+/* guard për elementët only-edit kur Edit Mode është OFF */
+
+.only-edit {
+  pointer-events: auto;
+}
+
+body:not(.km-mat-edit) .only-edit {
+  pointer-events: none !important;
+  opacity: .5 !important;
+}
+
+/* =========================================================
+   Përgjithësi / gjëra të vogla
+   ========================================================= */
+
+.km-mat-sec-gear {
+  display: none;
+}
+
+.km-mat-empty {
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+/* =========================================================
+   Mobile
+   ========================================================= */
+
+@media (max-width: 991.98px) {
+  #leftCol,
+  #navBox,
+  #paceBox {
+    display: none !important;
+  }
+
+  .km-mat-fab-col {
+    right: 12px;
+    bottom: 70px;
+  }
+}
+

@@ -1,0 +1,274 @@
+/* km-quiz-details.css — REVAMP (2026)
+   Shtesë mbi km-lms-forms.css, vetëm për quiz_details.php
+   Qëllimi: tabs, toolbar, metrics, people table, sticky actionbar, health badges
+*/
+
+:root{
+  --km-qz-border: rgba(15, 23, 42, .10);
+  --km-qz-soft: rgba(79, 70, 229, .08);
+  --km-qz-soft2: rgba(2, 132, 199, .08);
+  --km-qz-ok: #16a34a;
+  --km-qz-warn: #f59e0b;
+  --km-qz-bad: #dc2626;
+}
+
+/* Header spacing tweak */
+.km-quizd-header{
+  padding-bottom: 10px;
+}
+
+/* Tabs */
+.km-quizd-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.km-quizd-tab{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  text-decoration:none;
+  padding:.55rem .9rem;
+  border:1px solid var(--km-qz-border);
+  border-radius:999px;
+  background: rgba(255,255,255,.7);
+  color: var(--qta-text, #0f172a);
+  font-weight:700;
+}
+.km-quizd-tab:hover{
+  background:#fff;
+}
+.km-quizd-tab.is-active{
+  background: var(--km-qz-soft);
+  border-color: rgba(79, 70, 229, .30);
+  color: var(--qta-primary, #4f46e5);
+}
+
+/* Pills variants (fallback in case base doesn't have them) */
+.km-pill-success{ border-color: rgba(22,163,74,.25) !important; background: rgba(22,163,74,.08) !important; }
+.km-pill-warn{ border-color: rgba(245,158,11,.25) !important; background: rgba(245,158,11,.10) !important; }
+.km-pill-muted{ border-color: rgba(100,116,139,.25) !important; background: rgba(100,116,139,.08) !important; }
+
+/* Toolbar (people) */
+.km-quizd-toolbar{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+.km-quizd-search{
+  position:relative;
+  min-width: 240px;
+}
+.km-quizd-search i{
+  position:absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity:.6;
+}
+.km-quizd-search .form-control{
+  padding-left: 34px;
+  border-radius: 999px;
+  border: 1px solid var(--km-qz-border);
+  background: rgba(255,255,255,.85);
+}
+.km-btn-pill-sm{
+  border-radius: 999px !important;
+  padding: .42rem .75rem;
+  font-weight:700;
+}
+.btn-filter.is-active{
+  background: rgba(15,23,42,.06);
+  border-color: rgba(15,23,42,.12);
+}
+
+/* People table wrap */
+.km-quizd-tablewrap{
+  border:1px solid var(--km-qz-border);
+  border-radius: 16px;
+  overflow:hidden;
+}
+.km-quizd-tablewrap .table{
+  margin-bottom:0;
+}
+.km-quizd-tablewrap thead th{
+  background: rgba(15,23,42,.03);
+  border-bottom: 1px solid var(--km-qz-border);
+  font-weight:800;
+  color: rgba(15,23,42,.78);
+}
+.km-quizd-tablewrap tbody td{
+  border-top: 1px solid rgba(15,23,42,.06);
+}
+.km-btn-icon{
+  border-radius: 12px !important;
+  padding: .35rem .55rem;
+}
+
+/* Status dot */
+.km-quizd-dot{
+  width:10px; height:10px;
+  border-radius:50%;
+  display:inline-block;
+  margin-right:8px;
+  vertical-align:middle;
+}
+.km-quizd-dot.is-done{ background: var(--km-qz-ok); }
+.km-quizd-dot.is-prog{ background: var(--km-qz-warn); }
+.km-quizd-dot.is-none{ background: var(--km-qz-bad); }
+.km-quizd-st{ font-weight:800; }
+
+/* Metrics (details) */
+.km-quizd-metric{
+  border:1px solid var(--km-qz-border);
+  border-radius: 16px;
+  background: rgba(255,255,255,.85);
+  padding: 12px 14px;
+}
+.km-quizd-metric-label{
+  font-size: .88rem;
+  color: rgba(15,23,42,.55);
+  font-weight:700;
+}
+.km-quizd-metric-val{
+  font-size: 1.15rem;
+  font-weight:900;
+  color: rgba(15,23,42,.92);
+}
+
+/* Description block */
+.km-quizd-block{ margin-top: 2px; }
+.km-quizd-block-title{
+  font-weight:900;
+  margin-bottom: 8px;
+  color: rgba(15,23,42,.85);
+}
+.km-quizd-desc{
+  border:1px solid var(--km-qz-border);
+  background: rgba(15,23,42,.02);
+  border-radius: 16px;
+  padding: 14px 14px;
+  line-height: 1.55;
+}
+.km-quizd-empty{
+  border:1px dashed rgba(15,23,42,.20);
+  border-radius: 16px;
+  padding: 18px;
+  text-align:center;
+  color: rgba(15,23,42,.55);
+  background: rgba(255,255,255,.85);
+}
+
+/* Health */
+.km-quizd-health{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.km-quizd-health-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding: 10px 12px;
+  border:1px solid rgba(15,23,42,.08);
+  border-radius: 14px;
+  background: rgba(255,255,255,.85);
+  font-weight:700;
+}
+.km-quizd-badge{
+  padding:.22rem .55rem;
+  border-radius: 999px;
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(15,23,42,.03);
+  font-weight:900;
+}
+.km-quizd-badge.is-ok{
+  border-color: rgba(22,163,74,.25);
+  background: rgba(22,163,74,.08);
+}
+.km-quizd-badge.is-warn{
+  border-color: rgba(245,158,11,.25);
+  background: rgba(245,158,11,.10);
+}
+.km-quizd-badge.is-bad{
+  border-color: rgba(220,38,38,.25);
+  background: rgba(220,38,38,.10);
+}
+.km-quizd-health-state{
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.10);
+  font-weight:800;
+}
+.km-quizd-health-state.is-ok{
+  border-color: rgba(22,163,74,.25);
+  background: rgba(22,163,74,.08);
+  color: #14532d;
+}
+.km-quizd-health-state.is-bad{
+  border-color: rgba(220,38,38,.25);
+  background: rgba(220,38,38,.10);
+  color: #7f1d1d;
+}
+
+/* KPIs (people side) */
+.km-quizd-kpis{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.km-quizd-kpi{
+  border:1px solid rgba(15,23,42,.10);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,.85);
+}
+.km-quizd-kpi-label{
+  font-size: .85rem;
+  color: rgba(15,23,42,.55);
+  font-weight:700;
+}
+.km-quizd-kpi-val{
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+/* Sticky actionbar */
+.km-quizd-actionbar{
+  position: sticky;
+  bottom: 10px;
+  z-index: 20;
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  padding: 10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.08);
+}
+.km-quizd-actionbar-left{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+.km-quizd-actionbar-right{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+
+/* Responsive */
+@media (max-width: 575.98px){
+  .km-quizd-search{ min-width: 100%; }
+  .km-quizd-kpis{ grid-template-columns: 1fr; }
+  .km-quizd-actionbar{ bottom: 8px; }
+}

@@ -1,0 +1,363 @@
+/* Overview (student) — përdor paletën e course_panel.css */
+
+.course-overview{
+  font-size:0.9rem;
+}
+
+.course-overview .ov-card{
+  background:#ffffff;
+  border-radius:var(--card-radius);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-soft);
+  padding:1rem;
+}
+
+@media (min-width:992px){
+  .course-overview .ov-card{
+    padding:1.1rem 1.25rem;
+  }
+}
+
+/* ===== Progresi & KPI ===== */
+
+.course-overview .ov-kpi-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  margin-top:.35rem;
+}
+
+.course-overview .ov-kpi{
+  flex:1 1 90px;
+  padding:.4rem .6rem;
+  border-radius:12px;
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  display:flex;
+  align-items:center;
+  gap:.45rem;
+}
+
+.course-overview .ov-kpi-icon{
+  width:28px;
+  height:28px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eff6ff;
+  color:var(--primary);
+  font-size:.9rem;
+}
+
+.course-overview .ov-kpi-main{
+  font-weight:600;
+  font-size:.95rem;
+}
+
+.course-overview .ov-kpi-sub{
+  font-size:.75rem;
+  color:var(--muted);
+}
+
+.course-overview .ov-progress-row{
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+}
+
+.course-overview .ov-progress-row .progress{
+  height:6px;
+  border-radius:999px;
+}
+
+/* ===== Next up ===== */
+
+.course-overview .ov-section-title{
+  font-size:.8rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--muted);
+  margin-bottom:.25rem;
+}
+
+.course-overview .ov-next-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35rem;
+  margin-bottom:.35rem;
+}
+
+.course-overview .ov-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.25rem;
+  padding:.15rem .6rem;
+  border-radius:999px;
+  font-size:.75rem;
+  border:1px solid #e5e7eb;
+  background:#f9fafb;
+}
+
+.course-overview .ov-badge-live{
+  background:#fee2e2;
+  border-color:#fecaca;
+  color:#b91c1c;
+}
+
+.course-overview .ov-badge-upcoming{
+  background:#fef3c7;
+  border-color:#fde68a;
+  color:#92400e;
+}
+
+.course-overview .ov-badge-done{
+  background:#e5e7eb;
+  border-color:#d1d5db;
+  color:#374151;
+}
+
+.course-overview .ov-next-main{
+  display:flex;
+  justify-content:space-between;
+  gap:1rem;
+}
+
+.course-overview .ov-next-main h6{
+  margin-bottom:.15rem;
+}
+
+.course-overview .ov-next-meta{
+  font-size:.8rem;
+  color:#6b7280;
+}
+
+.course-overview .ov-next-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:.35rem;
+}
+
+@media (min-width:576px){
+  .course-overview .ov-next-actions{
+    flex-direction:row;
+    align-items:center;
+  }
+}
+
+/* ===== Detyra & kuizet në pritje ===== */
+
+.course-overview .ov-tasks{
+  margin-top:.75rem;
+  border-top:1px dashed #e5e7eb;
+  padding-top:.75rem;
+}
+
+.course-overview .ov-task-list{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.course-overview .ov-task-item{
+  display:flex;
+  justify-content:space-between;
+  gap:.75rem;
+  padding:.35rem 0;
+  border-bottom:1px dashed #f1f5f9;
+}
+
+.course-overview .ov-task-item:last-child{
+  border-bottom:none;
+}
+
+.course-overview .ov-task-left{
+  display:flex;
+  gap:.45rem;
+}
+
+.course-overview .ov-task-icon{
+  width:26px;
+  height:26px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.8rem;
+  background:#eff6ff;
+  color:var(--primary);
+}
+
+.course-overview .ov-task-title{
+  font-size:.85rem;
+  font-weight:500;
+}
+
+.course-overview .ov-task-meta{
+  font-size:.78rem;
+  color:#6b7280;
+}
+
+/* ===== Aktiviteti i fundit ===== */
+
+.course-overview .ov-timeline{
+  position:relative;
+  padding-left:1.25rem;
+  margin-top:.4rem;
+}
+
+.course-overview .ov-timeline::before{
+  content:"";
+  position:absolute;
+  left:.35rem;
+  top:.1rem;
+  bottom:.1rem;
+  width:2px;
+  background:#e5e7eb;
+}
+
+.course-overview .ov-activity-item{
+  position:relative;
+  padding-left:.85rem;
+  padding-bottom:.6rem;
+}
+
+.course-overview .ov-activity-item:last-child{
+  padding-bottom:0;
+}
+
+.course-overview .ov-activity-dot{
+  position:absolute;
+  left:-.03rem;
+  top:.2rem;
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  background:var(--primary);
+  box-shadow:0 0 0 3px #ffffff;
+}
+
+.course-overview .ov-activity-type{
+  font-size:.78rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:#6b7280;
+}
+
+.course-overview .ov-activity-title{
+  font-size:.9rem;
+  font-weight:500;
+}
+
+.course-overview .ov-activity-meta{
+  font-size:.78rem;
+  color:#6b7280;
+}
+
+/* ===== Përshkrimi i kursit ===== */
+
+.course-overview .ov-desc{
+  position:relative;
+  max-height:210px;
+  overflow:hidden;
+}
+
+.course-overview .ov-desc.is-open{
+  max-height:none;
+}
+
+.course-overview .ov-desc-fade{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:60px;
+  background:linear-gradient(to bottom,rgba(255,255,255,0),#ffffff);
+}
+
+.course-overview .ov-desc.is-open .ov-desc-fade{
+  display:none;
+}
+
+.course-overview .ov-desc .prose p{
+  margin-bottom:.4rem;
+}
+
+.course-overview .ov-desc .prose{
+  line-height:1.55;
+  overflow-wrap:anywhere;
+}
+
+.course-overview .ov-desc .prose ul,
+.course-overview .ov-desc .prose ol{
+  margin-bottom:.4rem;
+}
+
+.course-overview .ov-desc .prose code{
+  background:#f3f4f6;
+  border:1px solid #e5e7eb;
+  padding:.05rem .35rem;
+  border-radius:8px;
+  font-size:.85em;
+}
+
+.course-overview .ov-desc .prose pre{
+  background:#0b1220;
+  color:#e5e7eb;
+  border-radius:14px;
+  padding:.9rem 1rem;
+  overflow:auto;
+}
+
+.course-overview .ov-desc .prose pre code{
+  background:transparent;
+  border:0;
+  padding:0;
+  border-radius:0;
+  color:inherit;
+}
+
+/* ===== Quick actions (chips) ===== */
+
+.course-overview .ov-quick-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem;
+}
+
+.course-overview .ov-chip{
+  border-radius:999px;
+  padding:.25rem .7rem;
+  border:1px solid var(--border);
+  background:#f9fafb;
+  font-size:.8rem;
+  display:inline-flex;
+  align-items:center;
+  gap:.3rem;
+  cursor:pointer;
+}
+
+.course-overview .ov-chip i{
+  font-size:.85rem;
+}
+
+/* ===== Pagesa ime ===== */
+
+.course-overview .ov-pay{
+  display:flex;
+  justify-content:space-between;
+  gap:.75rem;
+  font-size:.85rem;
+}
+
+.course-overview .ov-pay strong{
+  display:block;
+  font-size:.95rem;
+}
+
+/* ===== Ndihmëse ===== */
+
+.course-overview .text-muted-soft{
+  color:#9ca3af;
+}

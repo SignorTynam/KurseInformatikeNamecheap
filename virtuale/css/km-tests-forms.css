@@ -1,0 +1,164 @@
+/* ==========================================================
+   km-tests-forms.css — REVAMP (2026)
+   Bazuar në km-lms-forms.css + km-quiz-forms.css
+   Qëllimi:
+   - UI e unifikuar për pagesat e tests (instruktor/admin)
+   - Toolbar / actionbar sticky
+   - Tabs të thjeshta (opsionale)
+   - Table polish (list view)
+   - Side preview box
+   ========================================================== */
+
+/* Tabs (opsionale) ----------------------------------------- */
+.km-tests-tabs{
+  display:flex;
+  gap:.5rem;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+
+.km-tests-tab{
+  border: 1px solid rgba(229,231,235,.95);
+  background:#fff;
+  border-radius: 999px;
+  font-weight: 900;
+  padding: .5rem .8rem;
+  color:#334155;
+  box-shadow: 0 6px 18px rgba(15,23,42,.04);
+  transition: .15s transform ease, .15s background-color ease, .15s border-color ease;
+  cursor:pointer;
+  text-decoration: none;
+}
+
+.km-tests-tab:hover{
+  transform: translateY(-1px);
+  background:#f9fafb;
+  border-color: rgba(240,179,35,.55);
+}
+
+.km-tests-tab.active{
+  background: rgba(240,179,35,.18);
+  border-color: rgba(240,179,35,.65);
+  color:#111827;
+}
+
+.km-tests-pane{ display:none; }
+.km-tests-pane.is-active{ display:block; }
+
+.km-tests-divider{
+  border-top: 1px dashed rgba(229,231,235,.95);
+}
+
+/* Preview box (side) --------------------------------------- */
+.km-tests-preview-box{
+  border: 1px solid rgba(229,231,235,.95);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  padding: 10px 12px;
+}
+
+.km-tests-preview-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  padding: .42rem 0;
+  border-bottom: 1px dashed rgba(229,231,235,.75);
+  font-size: .93rem;
+}
+
+.km-tests-preview-row:last-child{
+  border-bottom: 0;
+}
+
+.km-tests-preview-row strong{
+  font-weight: 900;
+}
+
+/* Actionbar ----------------------------------------------- */
+.km-tests-actionbar{
+  position: sticky;
+  bottom: 12px;
+  z-index: 40;
+  background: rgba(255,255,255,.86);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(229,231,235,.95);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(15,23,42,.10);
+  padding: 10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.km-tests-sumrow{
+  display:flex;
+  gap: 14px;
+  align-items:center;
+  flex-wrap:wrap;
+  color: #334155;
+  font-size: .92rem;
+}
+
+.km-tests-actionbar-right{
+  display:flex;
+  gap: .55rem;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-end;
+}
+
+/* Table polish -------------------------------------------- */
+.km-table{
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.km-table thead th{
+  font-weight: 900;
+  color: #111827;
+  border-bottom: 1px solid rgba(229,231,235,.9);
+}
+
+.km-table tbody td{
+  vertical-align: middle;
+  border-bottom: 1px dashed rgba(229,231,235,.75);
+}
+
+.km-table tbody tr:last-child td{
+  border-bottom: 0;
+}
+
+.km-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  padding:.28rem .6rem;
+  border-radius: 999px;
+  background: rgba(240,179,35,.18);
+  border: 1px solid rgba(240,179,35,.45);
+  color: #111827;
+  font-weight: 900;
+  font-size: .78rem;
+}
+
+.km-badge-secondary{
+  background: rgba(37,99,235,.12);
+  border-color: rgba(37,99,235,.22);
+}
+
+.km-badge-muted{
+  background: rgba(148,163,184,.14);
+  border-color: rgba(148,163,184,.28);
+  color: #334155;
+}
+
+@media (max-width: 991.98px){
+  .km-tests-actionbar{
+    position: static;
+    bottom: auto;
+  }
+}

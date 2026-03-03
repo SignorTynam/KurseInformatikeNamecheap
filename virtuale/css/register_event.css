@@ -1,0 +1,626 @@
+/* ==========================================================
+   register_event.css — REVAMP (2026) • Event Registration UI
+   - Përputhet me layout-in ev-*
+   - Hero cover + chips + stats
+   - Cards (sticky), form inputs me ikonë
+   - Banner (no-form), alerts, disabled notes
+   - Toast (Bootstrap) style
+   ========================================================== */
+
+:root{
+  /* Brand */
+  --primary:#2A4B7C;
+  --primary-dark:#1d3a63;
+  --secondary:#F0B323;
+  --accent:#FF6B6B;
+
+  /* Neutrals */
+  --bg:#f3f4f6;
+  --surface:#ffffff;
+  --text:#0f172a;
+  --muted:#6b7280;
+  --muted-2:#94a3b8;
+  --border:#e5e7eb;
+
+  /* Radii & shadows */
+  --r:18px;
+  --r-sm:14px;
+  --shadow-soft:0 8px 22px rgba(15,23,42,.06);
+  --shadow-mid:0 14px 34px rgba(15,23,42,.12);
+  --shadow-lg:0 18px 50px rgba(15,23,42,.14);
+
+  /* Typography */
+  --brand-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,
+               "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+
+  /* Layout */
+  --hero-min: 320px;
+  --nav-gap: 84px; /* nëse navbar është fixed; për sticky top */
+}
+
+/* ---------------- Base ---------------- */
+.ev-body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--brand-font);
+}
+
+a{ color:inherit; }
+a:hover{ color:inherit; }
+
+::selection{
+  background:rgba(240,179,35,.28);
+}
+
+/* ---------------- Hero ---------------- */
+.ev-hero{
+  padding: 18px 0 14px;
+}
+
+.ev-hero-grid{
+  display:grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 14px;
+  align-items:stretch;
+}
+
+.ev-hero-media{
+  min-height: var(--hero-min);
+}
+
+.ev-cover{
+  position:relative;
+  border-radius: calc(var(--r) + 6px);
+  overflow:hidden;
+  box-shadow: var(--shadow-lg);
+  background:#cbd5e1;
+  min-height: var(--hero-min);
+}
+
+.ev-cover img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transform: scale(1.02);
+}
+
+.ev-cover-overlay{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(180deg, rgba(15,23,42,.15) 0%, rgba(15,23,42,.55) 100%);
+  pointer-events:none;
+}
+
+.ev-cover-top{
+  position:absolute;
+  top:12px;
+  left:12px;
+  right:12px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  z-index:2;
+}
+
+.ev-cover-bottom{
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:12px;
+  display:flex;
+  justify-content:flex-start;
+  align-items:center;
+  z-index:2;
+}
+
+.ev-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  font-weight:700;
+  font-size:.82rem;
+  border-radius:999px;
+  padding:.36rem .7rem;
+  border:1px solid rgba(255,255,255,.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.ev-chip-dark{
+  background: rgba(15,23,42,.72);
+  color:#fff;
+}
+
+.ev-chip-light{
+  background: rgba(255,255,255,.88);
+  color:#0f172a;
+  border-color: rgba(255,255,255,.65);
+}
+
+/* State pill mbi cover */
+.ev-state{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:.42rem .7rem;
+  border-radius:999px;
+  font-weight:800;
+  font-size:.82rem;
+  border:1px solid rgba(255,255,255,.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 10px 26px rgba(15,23,42,.18);
+}
+
+.ev-state .dot{
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  background:#fff;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.18);
+}
+
+.ev-state-ok{
+  background: rgba(16,185,129,.22);
+  color:#ecfdf5;
+}
+.ev-state-ok .dot{ background:#34d399; }
+
+.ev-state-warn{
+  background: rgba(245,158,11,.22);
+  color:#fff7ed;
+}
+.ev-state-warn .dot{ background:#fbbf24; }
+
+/* ---------------- Hero content ---------------- */
+.ev-hero-content{
+  border-radius: calc(var(--r) + 6px);
+  background: var(--surface);
+  border:1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  padding: 14px 14px 12px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height: var(--hero-min);
+}
+
+.ev-breadcrumb{
+  font-size:.85rem;
+  color:var(--muted);
+  margin-bottom: .35rem;
+}
+
+.ev-title{
+  margin:0;
+  font-weight:900;
+  letter-spacing:.01em;
+  font-size: clamp(1.25rem, 1.25vw + 1rem, 1.85rem);
+  color:#111827;
+}
+
+.ev-submeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.45rem .85rem;
+  margin-top:.4rem;
+  color:#334155;
+  font-size:.92rem;
+}
+.ev-submeta span{
+  display:inline-flex;
+  align-items:center;
+  color:#334155;
+}
+
+.ev-stats{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap:10px;
+  margin-top: 12px;
+}
+
+.ev-stat{
+  border:1px solid var(--border);
+  border-radius: 14px;
+  background:#fff;
+  padding:.55rem .65rem;
+  display:flex;
+  align-items:center;
+  gap:.55rem;
+  box-shadow: 0 6px 18px rgba(15,23,42,.04);
+}
+
+.ev-stat .icon{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eff6ff;
+  color: var(--primary);
+  font-size:1rem;
+}
+
+.ev-stat .k{
+  font-size:.75rem;
+  color:var(--muted);
+  line-height:1.1;
+}
+.ev-stat .v{
+  font-size:1.02rem;
+  font-weight:900;
+  color:#0f172a;
+}
+
+.ev-desc{
+  margin: 10px 0 0;
+  color:#4b5563;
+  font-size:.95rem;
+  line-height:1.5;
+}
+
+.ev-hero-actions{
+  margin-top: 12px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  align-items:center;
+}
+
+.ev-warn-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+  font-size:.82rem;
+  font-weight:800;
+  color:#9a3412;
+  background:#fff7ed;
+  border:1px solid #fde68a;
+  padding:.32rem .6rem;
+  border-radius:999px;
+}
+
+/* ---------------- Main ---------------- */
+.ev-main{
+  padding: 10px 0 26px;
+}
+
+.ev-card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--r) + 4px);
+  box-shadow: var(--shadow-soft);
+  overflow:hidden;
+}
+
+.ev-card-sticky{
+  position: sticky;
+  top: var(--nav-gap);
+}
+
+.ev-card-head{
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(229,231,235,.9);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.ev-card-head .title{
+  font-weight:900;
+  color: var(--primary-dark);
+  display:flex;
+  align-items:center;
+  gap:.25rem;
+}
+
+.ev-divider{
+  height:1px;
+  background:rgba(229,231,235,.9);
+}
+
+/* ---------------- KV blocks ---------------- */
+.ev-kv{
+  padding: 12px 14px 10px;
+}
+
+.ev-kv-item{
+  border:1px solid rgba(229,231,235,.9);
+  border-radius: 14px;
+  background:#fff;
+  padding:.55rem .65rem;
+}
+
+.ev-kv-item .k{
+  font-size:.75rem;
+  color:var(--muted);
+  line-height:1.1;
+}
+.ev-kv-item .v{
+  font-weight:900;
+  color:#0f172a;
+  margin-top:.05rem;
+}
+
+.ev-note{
+  padding: 12px 14px 14px;
+}
+.ev-note .t{
+  font-weight:900;
+  color:#0f172a;
+  display:flex;
+  align-items:center;
+}
+.ev-note .b{
+  margin-top:.35rem;
+  color:#4b5563;
+  font-size:.92rem;
+  line-height:1.5;
+}
+
+/* ---------------- Alerts ---------------- */
+.ev-alert{
+  margin: 12px 14px 0;
+  border-radius: 16px;
+  border: 1px solid #fecaca;
+  background:#fef2f2;
+  padding: 12px 12px;
+  color:#7f1d1d;
+}
+.ev-alert-title{
+  font-weight:900;
+  margin-bottom:.4rem;
+}
+.ev-alert ul{
+  padding-left: 1.1rem;
+}
+
+/* ---------------- Banner (no form) ---------------- */
+.ev-banner{
+  margin: 12px 14px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(229,231,235,.95);
+  background:#f8fafc;
+  padding: 12px 12px;
+}
+
+.ev-banner .t{
+  font-weight:900;
+  color:#0f172a;
+  display:flex;
+  align-items:center;
+  margin-bottom:.35rem;
+}
+.ev-banner .b{
+  color:#4b5563;
+  font-size:.92rem;
+  line-height:1.45;
+}
+.ev-banner .actions{
+  margin-top:.75rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+}
+
+.ev-banner-ok{
+  border-color:#bbf7d0;
+  background:#ecfdf5;
+}
+.ev-banner-ok .t{ color:#166534; }
+
+.ev-banner-warn{
+  border-color:#fde68a;
+  background:#fff7ed;
+}
+.ev-banner-warn .t{ color:#9a3412; }
+
+/* ---------------- Form ---------------- */
+.ev-form{
+  padding: 12px 14px 14px;
+}
+
+.ev-label{
+  font-size:.82rem;
+  color:#475569;
+  font-weight:800;
+}
+
+.ev-input{
+  position:relative;
+  display:flex;
+  align-items:center;
+  border-radius: 14px;
+}
+
+.ev-input .ico{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform: translateY(-50%);
+  color:#64748b;
+  font-size: .95rem;
+  pointer-events:none;
+}
+
+.ev-input .form-control{
+  border-radius: 14px;
+  border:1px solid rgba(229,231,235,.95);
+  padding-left: 38px;
+  padding-top: .6rem;
+  padding-bottom: .6rem;
+  font-size: .92rem;
+  background:#fff;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.ev-input .form-control::placeholder{
+  color:#9ca3af;
+}
+
+.ev-input .form-control:focus{
+  border-color: rgba(240,179,35,.9);
+  box-shadow: 0 0 0 .2rem rgba(240,179,35,.16);
+  transform: translateY(-1px);
+}
+
+.ev-hp{
+  display:none !important;
+}
+
+.ev-form-hint{
+  margin-top: 10px;
+  font-size:.86rem;
+  color:#64748b;
+  display:flex;
+  align-items:center;
+}
+
+.ev-form-actions{
+  margin-top: 12px;
+  display:flex;
+  flex-direction:column;
+  gap:.55rem;
+}
+
+/* Buttons (match theme) */
+.btn.btn-primary{
+  background: var(--secondary);
+  border-color: var(--secondary);
+  color:#111827;
+  font-weight:900;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(240,179,35,.22);
+}
+.btn.btn-primary:hover{
+  background:#e4ab1f;
+  border-color:#e4ab1f;
+  color:#111827;
+}
+
+.btn.btn-outline-secondary{
+  border-radius: 999px;
+}
+.btn.btn-outline-primary{
+  border-radius: 999px;
+}
+
+/* Disabled note */
+.ev-disabled-note{
+  border-radius: 14px;
+  border:1px solid #fde68a;
+  background:#fff7ed;
+  color:#9a3412;
+  padding:.65rem .75rem;
+  font-weight:700;
+  font-size:.9rem;
+}
+
+/* ---------------- Small polish for Bootstrap bits ---------------- */
+.form-control, .form-select{
+  box-shadow:none;
+}
+.form-select:focus,
+.form-control:focus{
+  box-shadow: 0 0 0 .2rem rgba(240,179,35,.16);
+  border-color: rgba(240,179,35,.9);
+}
+
+/* ---------------- Toast ---------------- */
+#toastZone{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  z-index:1100;
+}
+
+.toast.ev-toast{
+  background:#ffffff;
+  border-radius:14px;
+  border:1px solid rgba(229,231,235,.95);
+  box-shadow:0 14px 34px rgba(15,23,42,.18);
+  overflow:hidden;
+}
+
+.toast.ev-toast .toast-header{
+  background:linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color:#ffffff;
+  border-bottom:0;
+}
+
+.toast.ev-toast .toast-body{
+  color:#111827;
+  font-size:.92rem;
+  line-height:1.45;
+}
+
+.toast.ev-toast .btn-close{
+  filter:invert(1);
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 991.98px){
+  :root{ --nav-gap: 16px; }
+
+  .ev-hero-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .ev-hero-content{
+    min-height: auto;
+  }
+
+  .ev-stats{
+    grid-template-columns: repeat(3, minmax(0,1fr));
+  }
+
+  .ev-card-sticky{
+    position: static;
+    top:auto;
+  }
+}
+
+@media (max-width: 576px){
+  .ev-hero{
+    padding: 14px 0 10px;
+  }
+
+  .ev-cover{
+    border-radius: calc(var(--r) + 2px);
+    min-height: 260px;
+  }
+
+  .ev-hero-content{
+    padding: 12px 12px 10px;
+  }
+
+  .ev-stats{
+    grid-template-columns: 1fr;
+  }
+
+  .ev-card-head{
+    padding: 11px 12px;
+  }
+
+  .ev-form,
+  .ev-kv,
+  .ev-note{
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  #toastZone{
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+  .toast.ev-toast{
+    width: 100%;
+  }
+}

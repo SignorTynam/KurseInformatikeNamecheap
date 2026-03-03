@@ -1,0 +1,87 @@
+/* css/toast.css — stilimi i AppToast */
+
+#toast-root{
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast-item{
+    min-width: 260px;
+    max-width: 360px;
+    border-radius: 14px;
+    background: #020617;
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.5);
+    color: #e5e7eb;
+    overflow: hidden;
+    display: flex;
+    opacity: 1;
+    transition: opacity .15s ease-out;
+}
+
+.toast-item--closing{
+    opacity: 0;
+}
+
+.toast-accent{
+    width: 4px;
+    background: var(--secondary);
+}
+
+.toast-body{
+    padding: 10px 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex: 1;
+}
+
+.toast-icon{
+    width: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-content{
+    flex: 1;
+    font-size: 0.82rem;
+}
+
+.toast-title{
+    font-weight: 600;
+    margin-bottom: 2px;
+    font-size: 0.82rem;
+}
+
+.toast-text{
+    font-size: 0.8rem;
+    color: #cbd5f5;
+}
+
+.toast-close{
+    border: 0;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+/* Ngjyrat sipas tipit */
+.toast-item--success .toast-accent{
+    background: #22c55e;
+}
+.toast-item--error .toast-accent{
+    background: #ef4444;
+}
+.toast-item--warning .toast-accent{
+    background: #eab308;
+}
+.toast-item--info .toast-accent{
+    background: #3b82f6;
+}

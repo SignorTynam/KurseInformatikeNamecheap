@@ -1,0 +1,446 @@
+:root {
+  --primary:#2A4B7C;
+  --primary-dark:#1d3a63;
+  --secondary:#F0B323;
+  --accent:#FF6B6B;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --card-radius:18px;
+  --shadow-soft:0 8px 22px rgba(15,23,42,.06);
+  --brand-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+
+/* =========================
+   BAZA
+========================= */
+.course-body{
+  background:#f3f4f6;
+  font-family:var(--brand-font);
+}
+
+/* Utility – mos prish Bootstrap table bg */
+.table > :not(caption) > * > * { background-color: transparent; }
+
+/* =========================
+   HERO
+========================= */
+.course-hero{
+  background-color:#ffffff;
+  border-bottom:1px solid var(--border);
+  padding:1.3rem 0 1.1rem;
+  margin-bottom:1rem;
+}
+.course-hero h1{
+  margin:0;
+  font-weight:700;
+  letter-spacing:.01em;
+  font-size:clamp(1.5rem, 2vw + 1rem, 2.1rem);
+  color:#111827;
+}
+.course-hero p{
+  margin:.2rem 0 0;
+  color:#4b5563;
+  font-size:.93rem;
+}
+.course-breadcrumb{
+  font-size:.85rem;
+  color:var(--muted);
+  margin-bottom:.15rem;
+}
+
+/* =========================
+   STAT CARDS
+========================= */
+.course-stat{
+  background:#fff;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:.5rem .75rem;
+  display:flex;
+  align-items:center;
+  gap:.55rem;
+  box-shadow:0 6px 18px rgba(15,23,42,.04);
+}
+.course-stat .icon{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eff6ff;
+  color:var(--primary);
+  font-size:1rem;
+}
+.course-stat .label{
+  font-size:.78rem;
+  color:#6b7280;
+}
+.course-stat .value{
+  font-size:1.1rem;
+  font-weight:700;
+  color:#111827;
+}
+
+/* =========================
+   MAIN WRAPPER
+========================= */
+.as-main{
+  padding-bottom:2rem;
+}
+
+/* =========================
+   SIDEBAR FILTER PANEL
+========================= */
+.as-sidebar{
+  background:#ffffff;
+  border-radius:16px;
+  border:1px solid var(--border);
+  padding:.9rem .95rem 1rem;
+  box-shadow:var(--shadow-soft);
+  position:sticky;
+  top:88px; /* poshtë navbar + hero */
+}
+
+.as-sidebar-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:.6rem;
+}
+.as-sidebar-header .title{
+  font-size:.9rem;
+  font-weight:600;
+  color:#111827;
+}
+.as-label{
+  font-size:.8rem;
+  color:#6b7280;
+  margin-bottom:.2rem;
+}
+
+/* Inputs (pak më të “tight”) */
+.as-sidebar .form-select,
+.as-sidebar .form-control{
+  font-size:.84rem;
+}
+.as-sidebar .form-control::placeholder{
+  color:#9ca3af;
+}
+
+/* Buttons në sidebar */
+.as-btn-main{
+  background:var(--primary);
+  border-color:var(--primary);
+}
+.as-btn-main:hover{
+  background:var(--secondary);
+  border-color:var(--secondary);
+  color:#111827;
+}
+.as-btn-ghost{
+  border-radius:999px;
+}
+.as-btn-ghost:hover{
+  background:#e5e7eb;
+}
+
+/* =========================
+   RESULTS HEADER
+========================= */
+.as-results-title{
+  font-size:1.05rem;
+  font-weight:600;
+  margin:0;
+  color:#111827;
+}
+.as-results-meta{
+  font-size:.85rem;
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+.as-empty{
+  border-radius:var(--card-radius);
+  border:1px dashed #cbd5e1;
+  padding:1.7rem 1.3rem;
+  text-align:center;
+  background:#ffffff;
+  box-shadow:var(--shadow-soft);
+}
+.as-empty .icon{
+  font-size:2rem;
+  color:#9ca3af;
+  margin-bottom:.35rem;
+}
+.as-empty .title{
+  font-weight:600;
+  margin-bottom:.15rem;
+  color:#111827;
+}
+.as-empty .subtitle{
+  font-size:.85rem;
+  color:#6b7280;
+  margin-bottom:.75rem;
+}
+
+/* =========================
+   STATUS PILL (reuse)
+========================= */
+.as-status-pill{
+  font-size:.75rem;
+  font-weight:600;
+  padding:.2rem .6rem;
+  border-radius:999px;
+  white-space:nowrap;
+}
+.as-status-pill-ok{
+  background:#ecfdf5;
+  color:#166534;
+}
+.as-status-pill-warn{
+  background:#fff7ed;
+  color:#9a3412;
+}
+.as-status-pill-danger{
+  background:#fef2f2;
+  color:#b91c1c;
+}
+.as-status-pill-muted{
+  background:#f1f5f9;
+  color:#334155;
+}
+
+/* =========================
+   LISTIMI I RI (GRID CARDS)
+   (zëvendëson layout-in e vjetër .as-item)
+========================= */
+.as-grid{ margin-top:.3rem; }
+
+/* Card wrapper */
+.as-card{
+  border-radius:var(--card-radius);
+  border:1px solid var(--border);
+  background:#ffffff;
+  box-shadow:var(--shadow-soft);
+  overflow:hidden;
+  transition:box-shadow .16s ease, transform .16s ease, border-color .16s ease;
+}
+.as-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 32px rgba(15,23,42,.16);
+  border-color:#d1d5db;
+}
+
+/* TOP BAR */
+.as-card-top{
+  display:flex;
+  gap:.75rem;
+  align-items:flex-start;
+  padding:.85rem .95rem;
+  border-bottom:1px solid rgba(229,231,235,.9);
+  background:linear-gradient(180deg,#ffffff 0%, #fbfbfd 100%);
+}
+
+.as-card-icon{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eff6ff;
+  color:var(--primary);
+  flex:0 0 auto;
+  font-size:1.05rem;
+  box-shadow:0 6px 18px rgba(15,23,42,.06);
+}
+
+.as-card-top-main{
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.as-card-top-row{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+
+.as-card-title{
+  font-size:1rem;
+  font-weight:700;
+  line-height:1.15;
+  margin:0;
+}
+.as-card-title a{
+  color:var(--primary-dark);
+  text-decoration:none;
+}
+.as-card-title a:hover{ text-decoration:underline; }
+
+.as-card-course{
+  display:inline-flex;
+  align-items:center;
+  gap:.25rem;
+  margin-top:.25rem;
+  font-size:.82rem;
+  color:#4b5563;
+  text-decoration:none;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.as-card-course:hover{ text-decoration:underline; }
+
+/* DUE BOX (djathtas) */
+.as-due-box{
+  flex:0 0 auto;
+  width:138px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:#ffffff;
+  padding:.55rem .65rem;
+  text-align:right;
+  box-shadow:0 6px 18px rgba(15,23,42,.04);
+}
+.as-due-box .lbl{
+  font-size:.72rem;
+  color:#6b7280;
+}
+.as-due-box .val{
+  font-weight:800;
+  font-size:.92rem;
+  color:#111827;
+  margin-top:.05rem;
+}
+.as-due-box .hint{
+  font-size:.72rem;
+  margin-top:.1rem;
+  color:#6b7280;
+}
+
+/* states */
+.as-due-box.is-overdue{
+  border-color:#fecaca;
+  background:#fff7f7;
+}
+.as-due-box.is-overdue .val,
+.as-due-box.is-overdue .hint{ color:#b91c1c; }
+
+.as-due-box.is-ok{
+  border-color:#bbf7d0;
+  background:#f3fff7;
+}
+.as-due-box.is-ok .hint{ color:#166534; }
+
+.as-due-box.is-none{
+  background:#f8fafc;
+}
+
+/* BODY */
+.as-card-body{
+  padding:.85rem .95rem .9rem;
+}
+
+.as-card-desc{
+  font-size:.86rem;
+  color:#4b5563;
+  margin:0;
+}
+
+/* mini KPI tiles */
+.as-metrics{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:.45rem;
+  margin-top:.55rem;
+}
+
+.as-metric{
+  border:1px solid rgba(229,231,235,.9);
+  background:#f8fafc;
+  border-radius:14px;
+  padding:.45rem .55rem;
+}
+
+.as-metric .k{
+  font-size:.72rem;
+  color:#6b7280;
+}
+.as-metric .v{
+  font-size:.98rem;
+  font-weight:800;
+  color:#111827;
+  margin-top:.05rem;
+}
+
+/* progress */
+.as-progress .progress{ background:#e5e7eb; }
+.as-progress .progress-bar{
+  background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+}
+
+/* FOOTER */
+.as-card-footer{
+  padding:.7rem .95rem .85rem;
+  border-top:1px solid rgba(229,231,235,.9);
+  background:#ffffff;
+}
+
+.as-mini-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.25rem;
+  padding:.22rem .55rem;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#ffffff;
+  color:#4b5563;
+  font-size:.75rem;
+}
+
+/* Buttons in card */
+.as-card-footer .btn{
+  font-size:.78rem;
+  padding:.26rem .6rem;
+}
+
+/* =========================
+   PAGINATION (pak më clean)
+========================= */
+.pagination.pagination-sm .page-link{
+  border-radius:10px;
+}
+.pagination.pagination-sm .page-item + .page-item{ margin-left:.25rem; }
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 991.98px){
+  .as-sidebar{
+    position:static;
+    top:auto;
+  }
+  .as-metrics{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .as-due-box{ width:130px; }
+}
+
+@media (max-width: 576px){
+  .course-hero{
+    padding:1rem 0 .9rem;
+  }
+
+  .as-card-top{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .as-due-box{
+    width:100%;
+    text-align:left;
+  }
+}

@@ -1,0 +1,240 @@
+:root {
+  --primary:#2A4B7C;
+  --primary-dark:#1d3a63;
+  --secondary:#F0B323;
+  --accent:#FF6B6B;
+  --success:#1a9a3a;
+  --danger:#d0342c;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --card-radius:14px;
+  --shadow-soft:0 4px 10px rgba(15,23,42,.04);
+  --brand-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
+
+/* BAZA  ----------------------------------------------------- */
+html, body {
+  background:#f3f4f6;
+  font-family:var(--brand-font);
+}
+
+h1,h2,h3,h4,h5,h6,
+.brand-heading,
+.card-header h5,
+.section-title {
+  font-family:var(--brand-font);
+  letter-spacing:.2px;
+}
+
+.brand-heading {
+  font-weight:600;
+}
+
+/* HERO  ----------------------------------------------------- */
+.admin-hero {
+  background:#ffffff;
+  border-bottom:1px solid var(--border);
+  padding:1.5rem 0;
+  margin-bottom:1.5rem;
+}
+
+.admin-hero h1 {
+  font-weight:800;
+  font-size:clamp(1.7rem, 2vw + 1rem, 2.2rem);
+  color:#111827;
+}
+
+.admin-hero p {
+  margin-bottom:0;
+  color:#4b5563;
+  font-size:.95rem;
+}
+
+.hero-toolbar {
+  display:flex;
+  gap:.4rem;
+  flex-wrap:wrap;
+}
+
+/* butonat 7/30/90 ditë + Raport/Ndihmë */
+.range-pill .btn{
+  border-radius:999px;
+  padding:6px 14px;
+  border:1px solid var(--border);
+  background:#f9fafb;
+  color:#111827;
+  font-size:.85rem;
+}
+
+.range-pill .btn:hover{
+  background:#e5efff;
+}
+
+.range-pill .btn.active{
+  background:var(--primary);
+  border-color:var(--primary);
+  color:#ffffff;
+}
+
+/* CTA e seancës live / next -------------------------------- */
+.cta-join {
+  background:#eff6ff;
+  border:1px dashed #bfdbfe;
+  padding:.75rem 1rem;
+  border-radius:12px;
+  color:#1e3a8a;
+}
+
+.cta-join .badge {
+  font-size:.7rem;
+}
+
+.cta-join a.btn {
+  background:#1d4ed8;
+  color:#ffffff;
+  border-radius:999px;
+  border:none;
+  padding:.4rem .9rem;
+}
+
+.cta-join a.btn:hover {
+  background:#2563eb;
+}
+
+/* CARD BAZË (search, KPI, quick) --------------------------- */
+.card-elev {
+  border-radius:var(--card-radius);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-soft);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+.card-elev .card-header {
+  background:transparent;
+  border-bottom:1px solid #edf0f5;
+}
+
+.card-elev:hover {
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(15,23,42,.08);
+}
+
+/* butoni i kërkimit ---------------------------------------- */
+.btn-dark {
+  background:var(--primary);
+  border-color:var(--primary-dark);
+}
+
+.btn-dark:hover {
+  background:var(--secondary);
+  border-color:var(--secondary);
+  color:#000;
+}
+
+/* QUICK ACTIONS -------------------------------------------- */
+.quick a.card {
+  border-radius:14px;
+  border:1px solid var(--border);
+  box-shadow:none;
+  background:#ffffff;
+  text-decoration:none;
+  transition:transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.quick a.card:hover {
+  background:#f9fafb;
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(15,23,42,.10);
+}
+
+.quick .display-6 {
+  font-size:2.1rem;
+}
+
+/* KPI GRID ------------------------------------------------- */
+.kpi-grid .card {
+  border-radius:14px;
+  border:1px solid var(--border);
+  box-shadow:none;
+  background:#ffffff;
+}
+
+.kpi-grid .card-body {
+  padding:.9rem 1.1rem;
+}
+
+.kpi-grid .icon {
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eff6ff;
+  color:#1d4ed8;
+  font-size:1.1rem;
+}
+
+/* ndryshimet % --------------------------------------------- */
+.stat-change {
+  font-size:.8rem;
+  margin-top:.15rem;
+  display:flex;
+  align-items:center;
+  gap:.25rem;
+}
+
+.stat-change i{
+  margin-right:0;
+}
+
+.positive{ color:var(--success); }
+.negative{ color:var(--danger); }
+.neutral{  color:var(--muted); }
+
+/* EMPTIES & LISTS (mund t'i përdorësh diku tjetër) ---------- */
+.empty {
+  border:1px dashed #d9deea;
+  padding:1.2rem;
+  border-radius:12px;
+  text-align:center;
+  color:#6b7280;
+  background:#f9fafb;
+}
+
+.kpi-grid .spark{ height:36px; }
+
+.list-mini .row + .row{
+  border-top:1px dashed #e5e7eb;
+}
+
+/* TITULL SEKSIONI ------------------------------------------ */
+.section-title{
+  color:var(--primary);
+  font-weight:600;
+}
+
+/* FOOTER (përdor var(--border), var(--muted)) --------------- */
+.ki-footer{
+  border-top:1px solid var(--border);
+  background:#ffffff;
+}
+
+.ki-footer-text{
+  color:var(--muted);
+  font-size:.85rem;
+}
+
+.ki-footer-links{
+  font-size:.85rem;
+}
+
+.ki-footer-link{
+  text-decoration:none;
+  color:#4b5563;
+}
+
+.ki-footer-link:hover{
+  color:var(--primary-dark);
+  text-decoration:underline;
+}

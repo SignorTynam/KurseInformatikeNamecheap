@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="sq">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>404 — Nuk u gjet</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="/image/favicon.ico" type="image/x-icon">
+
+  <!-- Bootstrap + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* KI v2 Error pages */
+    body.ki-error{
+      --ki-primary:#2A4B7C;
+      --ki-primary-2:#1d3a63;
+      --ki-secondary:#F0B323;
+      --ki-accent:#FF6B6B;
+
+      --ki-ink:#0b1220;
+      --ki-text:#0f172a;
+
+      --ki-sand:#fbfaf7;
+      --ki-ice:#f7fbff;
+
+      --ki-r2: 28px;
+      --ki-wrap: 1020px;
+
+      --ki-shadow: 0 24px 60px rgba(11, 18, 32, .16);
+      --ki-shadow-soft: 0 18px 44px rgba(11, 18, 32, .10);
+    }
+    body.ki-error{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family: Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      color: var(--ki-text);
+      background:
+        radial-gradient(900px 600px at 10% 0%, rgba(42,75,124,.12), transparent 55%),
+        radial-gradient(900px 600px at 90% 10%, rgba(240,179,35,.14), transparent 55%),
+        radial-gradient(700px 420px at 50% 105%, rgba(255,107,107,.14), transparent 60%),
+        linear-gradient(180deg, var(--ki-ice), var(--ki-sand));
+      padding: 24px;
+    }
+
+    .ki-wrap{ width: min(var(--ki-wrap), 100%); margin-inline:auto; }
+
+    .ki-glass{
+      border-radius: var(--ki-r2);
+      border: 1px solid rgba(15,23,42,.10);
+      box-shadow: var(--ki-shadow-soft);
+      background: linear-gradient(180deg, rgba(255,255,255,.44), rgba(255,255,255,.16));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow:hidden;
+    }
+
+    .ki-top{
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.22);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .ki-brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 900;
+      color: rgba(11,18,32,.92);
+      letter-spacing:.2px;
+    }
+    .ki-brand .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: var(--ki-secondary);
+      box-shadow: 0 10px 18px rgba(240,179,35,.35);
+    }
+    .ki-badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.35);
+      font-weight: 900;
+      color: rgba(11,18,32,.78);
+      white-space: nowrap;
+    }
+    .ki-badge i{ color: var(--ki-accent); }
+
+    .ki-body{ padding: 22px 18px 18px; }
+
+    .ki-grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+    @media (max-width: 992px){
+      .ki-grid{ grid-template-columns: 1fr; }
+    }
+
+    .ki-code{
+      font-family: Poppins, system-ui, sans-serif;
+      font-weight: 900;
+      font-size: clamp(46px, 7vw, 82px);
+      line-height: 1;
+      color: var(--ki-ink);
+      letter-spacing: .5px;
+      margin: 0;
+    }
+    .ki-title{
+      font-family: Poppins, system-ui, sans-serif;
+      font-weight: 900;
+      font-size: clamp(20px, 2.6vw, 28px);
+      margin: 10px 0 6px;
+      color: var(--ki-ink);
+    }
+    .ki-text{
+      color: rgba(11,18,32,.72);
+      font-weight: 700;
+      line-height: 1.6;
+      margin: 0;
+      max-width: 64ch;
+    }
+
+    .ki-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 16px;
+    }
+    .ki-btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,.12);
+      font-weight: 900;
+      letter-spacing: .1px;
+      text-decoration:none;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      white-space: nowrap;
+    }
+    .ki-btn:hover{ transform: translateY(-1px); }
+    .ki-btn.primary{
+      background: linear-gradient(135deg, var(--ki-secondary), #ffd36a);
+      border-color: rgba(240,179,35,.55);
+      color: #111827;
+    }
+    .ki-btn.ghost{
+      background: rgba(255,255,255,.25);
+      border-color: rgba(15,23,42,.10);
+      color: rgba(11,18,32,.88);
+    }
+
+    /* Quick links / search box */
+    .ki-panel{
+      border-radius: 22px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.26);
+      padding: 14px;
+    }
+    .ki-panel h6{
+      font-family: Poppins, system-ui, sans-serif;
+      font-weight: 900;
+      color: rgba(11,18,32,.88);
+      margin: 0 0 10px;
+    }
+    .ki-input{
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.40);
+      font-weight: 800;
+      color: rgba(11,18,32,.86);
+      box-shadow:none !important;
+    }
+    .ki-links{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top: 10px;
+    }
+    .ki-link{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.22);
+      text-decoration:none;
+      font-weight: 900;
+      color: rgba(11,18,32,.86);
+      transition: transform .15s ease, background .15s ease;
+    }
+    .ki-link:hover{ transform: translateY(-1px); background: rgba(255,255,255,.38); }
+
+    .ki-foot{
+      padding: 14px 18px;
+      border-top: 1px solid rgba(15,23,42,.10);
+      color: rgba(11,18,32,.60);
+      font-weight: 800;
+      font-size: .92rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap: 10px;
+      background: rgba(255,255,255,.18);
+    }
+    .ki-foot a{ color: rgba(11,18,32,.74); text-decoration:none; font-weight:900; }
+    .ki-foot a:hover{ text-decoration:underline; }
+
+    /* Optional subtle float */
+    .ki-float{ animation: floaty 4.5s ease-in-out infinite; }
+    @keyframes floaty{
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-6px); }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .ki-float{ animation:none; }
+      .ki-btn,.ki-link{ transition:none; }
+    }
+  </style>
+</head>
+
+<body class="ki-error">
+  <div class="ki-wrap">
+    <div class="ki-glass">
+      <div class="ki-top">
+        <div class="ki-brand">
+          <span class="dot"></span>
+          <span>kurseinformatike.com</span>
+        </div>
+        <span class="ki-badge"><i class="fa-solid fa-magnifying-glass"></i> 404 • Not Found</span>
+      </div>
+
+      <div class="ki-body">
+        <div class="ki-grid">
+          <div>
+            <h1 class="ki-code ki-float">404</h1>
+            <div class="ki-title">Kjo faqe nuk ekziston</div>
+            <p class="ki-text">
+              Linku mund të jetë shkruar gabim, ose faqja është zhvendosur/fshirë.
+              Përdorni opsionet më poshtë për të vazhduar shpejt.
+            </p>
+
+            <div class="ki-actions">
+              <a class="ki-btn primary" href="/"><i class="fa-solid fa-house"></i> Kryefaqe</a>
+              <a class="ki-btn ghost" href="/courses.php"><i class="fa-solid fa-graduation-cap"></i> Kurse</a>
+              <a class="ki-btn ghost" href="/events.php"><i class="fa-solid fa-tag"></i> Evente</a>
+              <a class="ki-btn ghost" href="javascript:history.back()"><i class="fa-solid fa-arrow-left"></i> Kthehu pas</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ki-foot">
+        <span>© <span id="y"></span> kurseinformatike.com</span>
+        <span>
+          <a href="/promotions_public.php">Promocione</a> ·
+          <a href="/courses.php">Kurse</a>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+:root{
+    --primary:#2A4B7C;
+    --primary-dark:#1d3a63;
+    --secondary:#F0B323;
+    --soft:#f6f8fb;
+    --muted:#6b7280;
+    --border:#e9eef7;
+    --shadow:0 10px 28px rgba(0,0,0,.08);
+    --shadow-lg:0 18px 50px rgba(0,0,0,.12);
+    --r:18px;
+}
+
+body{
+    background: var(--soft);
+    color:#1E293B;
+    font-family:Roboto, system-ui, sans-serif;
+}
+
+/* Hero (light) */
+.hero{
+    background:
+      radial-gradient(900px 500px at -10% 10%, #3b5b921a 0%, transparent 60%),
+      radial-gradient(700px 400px at 110% -10%, #20426d1a 0%, transparent 60%),
+      linear-gradient(135deg, #ffffff 0%, #f9fbff 100%);
+    border-bottom:1px solid var(--border);
+    padding: 36px 0 24px;
+}
+.hero h1{
+    font-family:Poppins, sans-serif;
+    font-weight:800;
+    color:var(--primary-dark);
+}
+.hero .sub{
+    color:#49566c;
+}
+
+/* Card */
+.card-ui{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:20px;
+    box-shadow:var(--shadow);
+}
+.brand-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:#fff8e1;
+    color:#6b4e00;
+    padding:6px 10px;
+    border:1px solid #ffe8a6;
+    border-radius:999px;
+    font-weight:600;
+}
+.btn-primary{
+    background:var(--secondary);
+    border-color:var(--secondary);
+    color:#111827;
+    border-radius:12px;
+}
+.btn-primary:hover{
+    background:#e4ab1f;
+    border-color:#e4ab1f;
+    color:#111;
+}
+.btn-outline-dark{
+    border-radius:12px;
+}
+
+.form-control{
+    border-radius:12px;
+}
+.input-group-text{
+    border-radius:12px;
+}
+.muted{
+    color:var(--muted);
+}
+
+/* Feature chips */
+.chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+}
+
+/* Layout */
+.login-wrap{
+    padding: 22px 0 40px;
+}
+.side-info{
+    height:100%;
+}
+
+@media (max-width: 992px){
+    .side-info{
+        order:2;
+        margin-top:10px;
+    }
+}

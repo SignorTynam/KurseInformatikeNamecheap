@@ -1,0 +1,6 @@
+Options -Indexes
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|phps)$">
+  SetHandler none
+  RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phps
+</FilesMatch>
+php_flag engine off

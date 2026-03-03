@@ -1,0 +1,209 @@
+/* profile.css — UI e profilit (e izoluar) */
+
+:root{
+  --p-primary:#2A4B7C;
+  --p-primary-dark:#1d3a63;
+  --p-bg:#f6f8fb;
+  --p-border:#e5e7eb;
+  --p-shadow:0 10px 28px rgba(15,23,42,.10);
+  --p-shadow-soft:0 6px 18px rgba(15,23,42,.06);
+  --p-radius:18px;
+}
+
+.profile-hero{
+  background: linear-gradient(135deg, var(--p-primary), var(--p-primary-dark));
+  color:#fff;
+  padding:38px 0 26px;
+  margin-bottom:18px;
+}
+.profile-breadcrumb{
+  font-size:.9rem;
+  color: rgba(255,255,255,.78);
+  margin-bottom:6px;
+}
+.profile-hero h1{
+  font-weight:800;
+  letter-spacing:.2px;
+}
+.profile-hero p{
+  color: rgba(255,255,255,.82);
+}
+
+.profile-hero-right{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.profile-stat{
+  background:#ffffff14;
+  border:1px solid #ffffff2a;
+  border-radius:14px;
+  padding:10px 12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:180px;
+}
+.profile-stat .ico{
+  width:38px;height:38px;border-radius:12px;
+  background:#ffffff1a;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+}
+.profile-stat .label{
+  font-size:.78rem;
+  color: rgba(255,255,255,.75);
+}
+.profile-stat .value{
+  font-weight:800;
+  line-height:1.1;
+}
+
+.profile-main{
+  background: var(--p-bg);
+  padding-bottom:26px;
+}
+
+/* Left card */
+.profile-card{
+  background:#fff;
+  border:1px solid var(--p-border);
+  border-radius: var(--p-radius);
+  box-shadow: var(--p-shadow-soft);
+  padding:16px;
+}
+.profile-card-top{
+  display:flex;
+  align-items:center;
+}
+.profile-avatar{
+  width:56px;height:56px;border-radius:999px;
+  background:#eef2ff;
+  color:#0f172a;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;
+  font-size:1.25rem;
+  border:1px solid #e5e7eb;
+}
+.profile-name{
+  font-weight:900;
+  font-size:1.05rem;
+  color:#0f172a;
+}
+.profile-email{
+  color:#64748b;
+  font-size:.86rem;
+}
+.profile-meta .k{
+  color:#64748b;
+  font-size:.78rem;
+}
+.profile-meta .v{
+  font-weight:700;
+  color:#0f172a;
+}
+
+.profile-tip{
+  border-radius:14px;
+  border:1px dashed #cbd5e1;
+  background:#f8fafc;
+  padding:12px 12px;
+}
+.profile-tip .title{
+  font-weight:800;
+  color:#0f172a;
+  margin-bottom:4px;
+}
+.profile-tip .text{
+  color:#64748b;
+  font-size:.86rem;
+}
+
+/* Right panel */
+.profile-panel{
+  background:#fff;
+  border:1px solid var(--p-border);
+  border-radius: var(--p-radius);
+  box-shadow: var(--p-shadow-soft);
+  overflow:hidden;
+}
+
+.profile-tabs{
+  display:flex;
+  gap:8px;
+  padding:10px;
+  border-bottom:1px solid var(--p-border);
+  background:#ffffffcc;
+  backdrop-filter: blur(6px);
+}
+.tab-btn{
+  border:1px solid var(--p-border);
+  background:#fff;
+  border-radius:999px;
+  padding:8px 12px;
+  font-weight:800;
+  font-size:.88rem;
+  color:#334155;
+  cursor:pointer;
+}
+.tab-btn.active{
+  background: var(--p-primary);
+  border-color: var(--p-primary);
+  color:#fff;
+}
+
+.profile-form{
+  padding:16px;
+}
+.profile-section-title{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 12px;
+  border:1px solid var(--p-border);
+  border-radius:16px;
+  background:#f8fafc;
+  margin-bottom:12px;
+}
+.profile-section-title > div:first-child{
+  font-weight:900;
+  color:#0f172a;
+}
+.profile-section-title .hint{
+  color:#64748b;
+  font-size:.86rem;
+  text-align:right;
+}
+
+.profile-help{
+  color:#64748b;
+  font-size:.86rem;
+}
+
+.profile-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.profile-btn-main{
+  background: var(--p-primary);
+  border-color: var(--p-primary);
+}
+.profile-btn-main:hover{
+  background: var(--p-primary-dark);
+  border-color: var(--p-primary-dark);
+}
+
+/* Tab panes */
+.tab-pane{ display:none; }
+.tab-pane.show{ display:block; }
+
+/* Responsive */
+@media (max-width: 576px){
+  .profile-stat{ min-width: 160px; }
+  .profile-section-title{ flex-direction:column; }
+  .profile-section-title .hint{ text-align:left; }
+}

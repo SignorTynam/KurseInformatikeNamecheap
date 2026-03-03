@@ -1,0 +1,400 @@
+/* BRAND NEW UI për faqen e quiz-it */
+
+/* Paleta që më dhe */
+:root {
+  --primary:#2A4B7C;
+  --primary-dark:#1d3a63;
+  --secondary:#F0B323;
+  --accent:#FF6B6B;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --card-radius:18px;
+  --shadow-soft:0 8px 22px rgba(15,23,42,.06);
+  --brand-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+
+  /* shtesa të vogla */
+  --bg:#f5f7fb;
+  --card-bg:#ffffff;
+}
+
+/* ROOT ------------------------------------------------------------ */
+
+body {
+  font-family: var(--brand-font);
+  background: var(--bg);
+}
+
+.qc-root {
+  min-height: 100vh;
+}
+
+/* HEADER ---------------------------------------------------------- */
+
+.qc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 24px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, #4f8adf 0, var(--primary-dark) 45%, #020617 100%);
+  color: #f9fafb;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, .35);
+}
+
+.qc-header-main {
+  max-width: 60%;
+}
+
+.qc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(241,245,249,.7);
+  background: rgba(15,23,42,.35);
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.qc-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.qc-title {
+  margin-top: 8px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.qc-subtitle {
+  font-size: .9rem;
+  opacity: .95;
+}
+
+.qc-header-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* STEPS ----------------------------------------------------------- */
+
+.qc-steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.qc-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: .78rem;
+  opacity: .7;
+}
+
+.qc-step-active {
+  border-color: rgba(248,250,252,.9);
+  background: rgba(15,23,42,.4);
+  opacity: 1;
+}
+
+.qc-step-index {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(248,250,252,.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  font-weight: 700;
+}
+
+.qc-step-label {
+  font-weight: 600;
+}
+
+/* BACK LINK ------------------------------------------------------- */
+
+.qc-back-link {
+  border-radius: 999px;
+  border-color: rgba(248,250,252,.7);
+}
+
+.qc-back-link:hover {
+  background: rgba(15,23,42,.28);
+}
+
+/* LAYOUT ---------------------------------------------------------- */
+
+.qc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 20px;
+}
+
+.qc-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Karta bazë ------------------------------------------------------ */
+
+.qc-card {
+  border-radius: var(--card-radius);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.qc-card-header {
+  padding: 16px 20px 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qc-card-step {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(42,75,124,.08);
+  color: var(--primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.qc-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: #111827;
+}
+
+.qc-card-subtitle {
+  font-size: .86rem;
+  color: var(--muted);
+}
+
+.qc-card-body {
+  padding: 12px 20px 18px 20px;
+}
+
+/* Form elemente --------------------------------------------------- */
+
+.qc-root .form-control,
+.qc-root .form-select {
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  font-size: .95rem;
+}
+
+.qc-root .form-control:focus,
+.qc-root .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 .16rem rgba(42,75,124,.12);
+}
+
+.qc-root .form-text {
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+/* ALERT ----------------------------------------------------------- */
+
+.qc-alert {
+  border-radius: 16px;
+  border-width: 0;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Chips (quick buttons) ------------------------------------------- */
+
+.qc-chip-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.qc-chip {
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #f9fafb;
+  padding: 4px 10px;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease,
+    transform .08s ease;
+}
+
+.qc-chip:hover {
+  background: #eff4ff;
+  border-color: #d0ddff;
+  transform: translateY(-.5px);
+}
+
+.qc-chip.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* Kolona e djathtë ------------------------------------------------ */
+
+.qc-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qc-side-card {
+  border-radius: var(--card-radius);
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-soft);
+}
+
+.qc-side-preview {
+  position: sticky;
+  top: 86px;
+}
+
+.qc-side-title {
+  font-size: .9rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.qc-pill-draft {
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #c05621;
+  border: 1px solid #fed7aa;
+  font-size: .7rem;
+}
+
+/* Preview rows ---------------------------------------------------- */
+
+.qc-preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: .85rem;
+}
+
+.qc-preview-row:last-child {
+  border-bottom: none;
+}
+
+.qc-preview-label {
+  color: var(--muted);
+}
+
+.qc-preview-value {
+  font-weight: 500;
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Tips ------------------------------------------------------------ */
+
+.qc-tip-list {
+  padding-left: 1.1rem;
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+.qc-tip-list li + li {
+  margin-top: 4px;
+}
+
+/* Footer i formës ------------------------------------------------- */
+
+.qc-footer {
+  border-radius: var(--card-radius);
+  border: 1px solid var(--border);
+  background: #f9fafb;
+}
+
+.qc-footer-summary {
+  color: var(--muted);
+}
+
+/* Buttons --------------------------------------------------------- */
+
+.qc-root .btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  border-radius: 999px;
+  padding-inline: 18px;
+  font-weight: 600;
+}
+
+.qc-root .btn-primary:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.qc-root .btn-outline-secondary {
+  border-radius: 999px;
+}
+
+/* Responsive ------------------------------------------------------ */
+
+@media (max-width: 991.98px) {
+  .qc-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .qc-header-main {
+    max-width: 100%;
+  }
+
+  .qc-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .qc-side-preview {
+    position: static;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .qc-title {
+    font-size: 1.25rem;
+  }
+
+  .qc-card-header,
+  .qc-card-body {
+    padding-inline: 16px;
+  }
+}
