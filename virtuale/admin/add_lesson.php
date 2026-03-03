@@ -90,6 +90,46 @@ function validate_image_upload(string $tmpPath): bool {
   return in_array($mime, ['image/jpeg','image/png','image/gif','image/webp'], true);
 }
 
+/* -------------------- Schema helpers ----------------- */
+function km_table_exists(PDO $pdo, string $table): bool {
+  try {
+    $st = $pdo->prepare('SHOW TABLES LIKE ?');
+    $st->execute([$table]);
+    return (bool)$st->fetchColumn();
+  } catch (Throwable $e) {
+    return false;
+  }
+}
+
+/**
+ * Siguro që tabela lesson_images ekziston.
+ * E bën page-in resilient kur DB skema s'është up-to-date.
+ */
+function km_ensure_lesson_images_table(PDO $pdo): void {
+  static $done = false;
+  if ($done) return;
+  $done = true;
+
+  if (km_table_exists($pdo, 'lesson_images')) return;
+
+  // Krijo tabelën (pa FK për kompatibilitet me engine-ët ekzistues).
+  $pdo->exec("
+    CREATE TABLE IF NOT EXISTS lesson_images (
+      id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      lesson_id INT NOT NULL,
+      file_path VARCHAR(255) NOT NULL,
+      alt_text VARCHAR(255) NULL,
+      position INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  ");
+
+  // Indekse (best-effort)
+  try { $pdo->exec('CREATE INDEX idx_limg_lesson ON lesson_images(lesson_id)'); } catch (Throwable $e) { /* ignore */ }
+  try { $pdo->exec('CREATE INDEX idx_limg_lesson_pos ON lesson_images(lesson_id, position)'); } catch (Throwable $e) { /* ignore */ }
+}
+
 /* -------------------- Image processing ----------------- */
 /**
  * Ruaj imazhet e “Foto” brenda përmbajtjes dhe zëvendëso #IMG1..n me /uploads/images/lessons/<id>/<file>
@@ -129,6 +169,8 @@ function process_content_images_for_lesson(int $lessonId, string $description, a
 
 /** Ruaj fotot opsionale të leksionit në table lesson_images */
 function save_lesson_images(PDO $pdo, int $lessonId, array $files, string $absRoot, string $relRoot): void {
+  km_ensure_lesson_images_table($pdo);
+
   $lessonDirAbs = $absRoot . '/' . $lessonId;
   ensure_dir($lessonDirAbs);
 

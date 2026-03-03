@@ -19,6 +19,16 @@ session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/lib/database.php';
 
+function km_table_exists(PDO $pdo, string $table): bool {
+  try {
+    $st = $pdo->prepare('SHOW TABLES LIKE ?');
+    $st->execute([$table]);
+    return (bool)$st->fetchColumn();
+  } catch (Throwable $e) {
+    return false;
+  }
+}
+
 if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'] ?? '', ['Administrator','Instruktor'], true)) {
   echo json_encode(['ok'=>false,'error'=>'Unauthenticated']); exit;
 }
@@ -127,7 +137,10 @@ try {
     $delLesson      = $pdo->prepare("DELETE FROM lessons WHERE id=? AND course_id=?");
     $delLessonFiles = $pdo->prepare("DELETE FROM lesson_files WHERE lesson_id=?");
     // table e re në skemë (InnoDB + FK), por e fshijmë edhe manualisht për siguri
-    $delLessonImages= $pdo->prepare("DELETE FROM lesson_images WHERE lesson_id=?");
+    $hasLessonImages = km_table_exists($pdo, 'lesson_images');
+    $delLessonImages = $hasLessonImages
+      ? $pdo->prepare("DELETE FROM lesson_images WHERE lesson_id=?")
+      : null;
     $delNotes       = $pdo->prepare("DELETE FROM notes WHERE lesson_id=?");
     $delThreads     = $pdo->prepare("DELETE FROM threads WHERE course_id=? AND lesson_id=?");
     $delRepliesByThreads = $pdo->prepare("
@@ -178,7 +191,9 @@ try {
       if ($typ === 'LESSON') {
         // MyISAM tables: manual cleanup
         $delLessonFiles->execute([$ref]);
-        $delLessonImages->execute([$ref]); // edhe pse ka FK, s’na prish
+        if ($delLessonImages) {
+          try { $delLessonImages->execute([$ref]); } catch (Throwable $__){ /* ignore */ }
+        }
         $delNotes->execute([$ref]);
 
         // threads + replies (MyISAM)

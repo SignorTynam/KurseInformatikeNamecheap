@@ -261,6 +261,28 @@ SET @sql := IF(@idx=0, 'CREATE INDEX idx_tr_user ON thread_replies(user_id);', '
 PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
 
 /* =========================
+   LESSON_IMAGES (optional)
+   ========================= */
+SET @tbl := (
+  SELECT COUNT(*) FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='lesson_images'
+);
+
+SET @idx := (
+  SELECT COUNT(*) FROM information_schema.STATISTICS
+  WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='lesson_images' AND INDEX_NAME='idx_limg_lesson'
+);
+SET @sql := IF(@tbl=0 OR @idx>0, 'SELECT 1', 'CREATE INDEX idx_limg_lesson ON lesson_images(lesson_id);');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+SET @idx := (
+  SELECT COUNT(*) FROM information_schema.STATISTICS
+  WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='lesson_images' AND INDEX_NAME='idx_limg_lesson_pos'
+);
+SET @sql := IF(@tbl=0 OR @idx>0, 'SELECT 1', 'CREATE INDEX idx_limg_lesson_pos ON lesson_images(lesson_id, position);');
+PREPARE s FROM @sql; EXECUTE s; DEALLOCATE PREPARE s;
+
+/* =========================
    QUIZZES
    ========================= */
 SET @idx := (
