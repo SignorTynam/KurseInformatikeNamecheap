@@ -27,7 +27,7 @@ $course_id = (int)$_GET['course_id'];
 $activeTab = isset($_GET['tab']) ? (string)$_GET['tab'] : '';
 
 // Nëse vjen një tab i pavlefshëm (p.sh. nga bookmark i vjetër), kthehu te Përmbledhja
-$validTabs = ['', 'overview', 'materials', 'labs', 'forum', 'people', 'payments'];
+$validTabs = ['', 'overview', 'materials', 'forum', 'people', 'payments'];
 if (!in_array($activeTab, $validTabs, true)) {
   $activeTab = '';
 }
