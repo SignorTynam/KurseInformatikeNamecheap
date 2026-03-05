@@ -6,8 +6,6 @@ require_once __DIR__ . '/../lib/database.php';
 
 /* ------------------------------ Helpers ------------------------------ */
 function h(?string $s): string { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
-function norm_area(?string $a): string { return (strtoupper((string)$a) === 'LABS') ? 'LABS' : 'MATERIALS'; }
-function tab_from_area(?string $a): string { return norm_area($a) === 'LABS' ? 'labs' : 'materials'; }
 function redirect_course(int $course_id, string $tab, string $msg, bool $ok=false): never {
   $_SESSION['flash'] = ['msg'=>$msg, 'type'=>($ok ? 'success' : 'danger')];
   $base  = 'course_details.php?course_id=' . $course_id . '&tab=' . urlencode($tab);
@@ -49,7 +47,7 @@ if (stripos($ct, 'application/json') !== false) {
 
 $lesson_id = isset($input['lesson_id']) ? (int)$input['lesson_id'] : 0;
 $course_id = isset($input['course_id']) ? (int)$input['course_id'] : 0;
-$areaIn    = (string)($input['area'] ?? 'MATERIALS'); // përdoret për redirect kur formë vjen nga tabs
+$tab       = 'materials';
 
 if ($lesson_id <= 0) { die('Leksioni nuk është specifikuar.'); }
 
@@ -71,7 +69,6 @@ foreach ($serverTokens as $sv) {
   }
 }
 if (!$csrf_ok) {
-  $tab = tab_from_area($areaIn);
   $cid = $course_id > 0 ? $course_id : (int)($_GET['course_id'] ?? 0);
   $cid = $cid ?: 0;
   $msg = 'CSRF verifikimi dështoi. Rifresko faqen dhe provo përsëri.';
@@ -97,19 +94,6 @@ try {
   if ($ROLE === 'Instruktor' && (int)$row['id_creator'] !== $ME_ID) {
     die('Nuk keni akses për të fshirë këtë leksion.');
   }
-
-  // Dedukto area për redirect nëse s’u dërgua (nga section_items ose nga category=LAB)
-  $tabArea = $areaIn;
-  if ($tabArea === '' || !in_array(strtoupper($tabArea), ['MATERIALS','LABS'], true)) {
-    $stA = $pdo->prepare("SELECT area FROM section_items WHERE course_id=? AND item_type='LESSON' AND item_ref_id=? LIMIT 1");
-    $stA->execute([$course_id, $lesson_id]);
-    $foundArea = (string)($stA->fetchColumn() ?: '');
-    if ($foundArea === '') {
-      $foundArea = (strtoupper((string)$row['category']) === 'LAB') ? 'LABS' : 'MATERIALS';
-    }
-    $tabArea = $foundArea;
-  }
-  $tab = tab_from_area($tabArea);
 
   // Merre listën e skedarëve të leksionit (për fshirje fizike pas commit)
   $files = [];
@@ -145,6 +129,5 @@ try {
 
 } catch (Throwable $e) {
   if ($pdo->inTransaction()) { $pdo->rollBack(); }
-  $tab = tab_from_area($areaIn);
   redirect_course($course_id ?: 0, $tab, 'Gabim gjatë fshirjes së leksionit: '. $e->getMessage(), false);
 }

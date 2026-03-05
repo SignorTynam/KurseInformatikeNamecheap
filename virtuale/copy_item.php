@@ -149,9 +149,8 @@ try {
         $targetCourseId,
         $targetSectionId,
         $type,
-        (string)$sourceCourseId,  // ✅ kasto në string sipas firmës së funksionit
-        $sourceItemId,
-        $ME_ID
+        $sourceCourseId,
+        $sourceItemId
     );
 
     if (!($res['ok'] ?? false)) {

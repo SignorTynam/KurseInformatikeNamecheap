@@ -6,8 +6,6 @@ require_once __DIR__ . '/../lib/database.php';
 
 /* ------------------------------ Helpers ------------------------------ */
 function h(?string $s): string { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
-function norm_area(?string $a): string { return (strtoupper((string)$a) === 'LABS') ? 'LABS' : 'MATERIALS'; }
-function tab_from_area(?string $a): string { return norm_area($a) === 'LABS' ? 'labs' : 'materials'; }
 function redirect_course(int $course_id, string $tab, string $msg, bool $ok=false): never {
   $_SESSION['flash'] = ['msg'=>$msg, 'type'=>($ok ? 'success' : 'danger')];
   $base  = '../course_details.php?course_id=' . $course_id . '&tab=' . urlencode($tab);
@@ -36,11 +34,10 @@ if ($method === 'POST' && stripos($ct, 'application/json') !== false) {
 
 $quiz_id   = isset($input['quiz_id'])   ? (int)$input['quiz_id']   : 0;
 $course_id = isset($input['course_id']) ? (int)$input['course_id'] : (int)($_GET['course_id'] ?? 0);
-$areaIn    = (string)($input['area'] ?? '');  // për redirect; mund të mungojë
+$tab       = 'materials';
 
 if ($quiz_id <= 0) {
   $cid = $course_id ?: 0;
-  $tab = tab_from_area($areaIn ?: 'MATERIALS');
   if ($cid > 0) redirect_course($cid, $tab, 'Quiz nuk është specifikuar.', false);
   die('Quiz nuk është specifikuar.');
 }
@@ -64,7 +61,6 @@ foreach ($serverTokens as $sv) {
 }
 if (!$csrf_ok) {
   $cid = $course_id ?: (int)($input['course_id'] ?? 0);
-  $tab = tab_from_area($areaIn ?: 'MATERIALS');
   $msg = 'CSRF verifikimi dështoi. Rifresko faqen dhe provo përsëri.';
   if ($cid > 0) redirect_course($cid, $tab, $msg, false);
   http_response_code(403); exit($msg);
@@ -83,24 +79,14 @@ try {
   $st->execute([$quiz_id]);
   $q = $st->fetch(PDO::FETCH_ASSOC);
   if (!$q) { 
-    $tab = tab_from_area($areaIn ?: 'MATERIALS');
     if ($course_id > 0) redirect_course($course_id, $tab, 'Quiz nuk u gjet.', false);
     die('Quiz nuk u gjet.');
   }
 
   $course_id = $course_id > 0 ? $course_id : (int)$q['course_id'];
   if ($ROLE === 'Instruktor' && (int)$q['id_creator'] !== $ME_ID) {
-    redirect_course($course_id, tab_from_area($areaIn ?: 'MATERIALS'), 'Nuk keni akses.', false);
+    redirect_course($course_id, $tab, 'Nuk keni akses.', false);
   }
-
-  // Nëse area nuk u dërgua, dedukto nga section_items
-  $tabArea = $areaIn;
-  if ($tabArea === '' || !in_array(strtoupper($tabArea), ['MATERIALS','LABS'], true)) {
-    $stA = $pdo->prepare("SELECT area FROM section_items WHERE course_id=? AND item_type='QUIZ' AND item_ref_id=? LIMIT 1");
-    $stA->execute([$course_id, $quiz_id]);
-    $tabArea = (string)($stA->fetchColumn() ?: 'MATERIALS');
-  }
-  $tab = tab_from_area($tabArea);
 
   // Transaksion: heq referencat dhe vetë quiz-in (CASCADE pastron pyetje/opsione/attempts)
   $pdo->beginTransaction();
@@ -118,5 +104,5 @@ try {
 
 } catch (Throwable $e) {
   if ($pdo->inTransaction()) $pdo->rollBack();
-  redirect_course($course_id ?: 0, tab_from_area($areaIn ?: 'MATERIALS'), 'Gabim: '. $e->getMessage(), false);
+  redirect_course($course_id ?: 0, $tab, 'Gabim: '. $e->getMessage(), false);
 }

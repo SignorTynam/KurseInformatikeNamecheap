@@ -1,5 +1,5 @@
 <?php
-// copy_course.php — Klonim i kursit sipas skemës së re (FIX: ruaj 'area' te sections)
+// copy_course.php — Klonim i kursit sipas skemës së re
 declare(strict_types=1);
 session_start();
 header('Content-Type: application/json; charset=UTF-8');
@@ -80,7 +80,7 @@ try {
      Kopjo Sections  (FIX: përfshi 'area')
      ========================= */
   $qSec = $pdo->prepare("
-    SELECT id, title, description, position, area, hidden, highlighted
+    SELECT id, title, description, position, hidden, highlighted
     FROM sections
     WHERE course_id = ?
     ORDER BY position ASC, id ASC
@@ -88,8 +88,8 @@ try {
   $qSec->execute([$srcCourseId]);
 
   $insSec = $pdo->prepare("
-    INSERT INTO sections (course_id, title, description, position, area, hidden, highlighted, created_at, updated_at)
-    VALUES (:course_id, :title, :descr, :pos, :area, 1, 0, NOW(), NOW())
+    INSERT INTO sections (course_id, title, description, position, hidden, highlighted, created_at, updated_at)
+    VALUES (:course_id, :title, :descr, :pos, 1, 0, NOW(), NOW())
   ");
 
   while ($sec = $qSec->fetch(PDO::FETCH_ASSOC)) {
@@ -98,7 +98,6 @@ try {
       ':title'     => $sec['title'],
       ':descr'     => $sec['description'] ?? null,
       ':pos'       => (int)$sec['position'],
-      ':area'      => $sec['area'] ?: 'MATERIALS', // RUAN MATERIALS/LABS
     ]);
     $sectionMap[(int)$sec['id']] = (int)$pdo->lastInsertId();
   }

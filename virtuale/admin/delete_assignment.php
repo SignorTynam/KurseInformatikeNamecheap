@@ -6,7 +6,6 @@ require_once __DIR__ . '/../lib/database.php';
 
 /* ------------------------------ Helpers ------------------------------ */
 function h(?string $s): string { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
-function tab_from_area(?string $area): string { return (strtoupper((string)$area) === 'LABS') ? 'labs' : 'materials'; }
 function redirect_course(int $course_id, string $tab, string $msg, bool $ok=false): never {
   $_SESSION['flash'] = ['msg'=>$msg, 'type'=>($ok ? 'success' : 'danger')];
   $base  = 'course_details.php?course_id=' . $course_id . '&tab=' . urlencode($tab);
@@ -44,8 +43,7 @@ if (stripos($ct, 'application/json') !== false) {
 
 $assignment_id = isset($input['assignment_id']) ? (int)$input['assignment_id'] : 0;
 $course_id     = isset($input['course_id'])     ? (int)$input['course_id']     : (int)($_GET['course_id'] ?? 0);
-$area          = (string)($input['area'] ?? 'MATERIALS');
-$tab           = tab_from_area($area);
+$tab           = 'materials';
 
 /* ------------------------------- CSRF --------------------------------- */
 if (empty($_SESSION['csrf_token'])) { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }

@@ -206,15 +206,15 @@ function copy_quiz_deep(PDO $pdo, int $sourceQuizId, int $targetCourseId, ?int $
 
 /* ===================== section_items helpers ===================== */
 
-function create_text_block(PDO $pdo, int $courseId, int $sectionId, string $area, string $contentMd, int $hidden = 1): int {
-  $pos = si_next_pos($pdo, $courseId, $sectionId, $area);
+function create_text_block(PDO $pdo, int $courseId, int $sectionId, string $contentMd, int $hidden = 1): int {
+  $pos = si_next_pos($pdo, $courseId, $sectionId);
 
   if (_section_items_has_area($pdo)) {
     $ins = $pdo->prepare("
       INSERT INTO section_items (course_id, area, section_id, item_type, item_ref_id, content_md, hidden, position, created_at, updated_at)
       VALUES (?,?,?,?,NULL,?,?,?,NOW(),NOW())
     ");
-    $ins->execute([$courseId, $area, $sectionId, 'TEXT', $contentMd, $hidden, $pos]);
+    $ins->execute([$courseId, 'GENERAL', $sectionId, 'TEXT', $contentMd, $hidden, $pos]);
   } else {
     $ins = $pdo->prepare("
       INSERT INTO section_items (course_id, section_id, item_type, item_ref_id, content_md, hidden, position, created_at, updated_at)
@@ -226,15 +226,15 @@ function create_text_block(PDO $pdo, int $courseId, int $sectionId, string $area
   return (int)$pdo->lastInsertId();
 }
 
-function link_item_to_section(PDO $pdo, int $courseId, int $sectionId, string $area, string $itemType, int $itemRefId, int $hidden = 1): int {
-  $pos = si_next_pos($pdo, $courseId, $sectionId, $area);
+function link_item_to_section(PDO $pdo, int $courseId, int $sectionId, string $itemType, int $itemRefId, int $hidden = 1): int {
+  $pos = si_next_pos($pdo, $courseId, $sectionId);
 
   if (_section_items_has_area($pdo)) {
     $ins = $pdo->prepare("
       INSERT INTO section_items (course_id, area, section_id, item_type, item_ref_id, hidden, position, created_at, updated_at)
       VALUES (?,?,?,?,?,?,?,NOW(),NOW())
     ");
-    $ins->execute([$courseId, $area, $sectionId, $itemType, $itemRefId, $hidden, $pos]);
+    $ins->execute([$courseId, 'GENERAL', $sectionId, $itemType, $itemRefId, $hidden, $pos]);
   } else {
     $ins = $pdo->prepare("
       INSERT INTO section_items (course_id, section_id, item_type, item_ref_id, hidden, position, created_at, updated_at)
@@ -248,11 +248,11 @@ function link_item_to_section(PDO $pdo, int $courseId, int $sectionId, string $a
 
 /* ===================== Wrapper-a të sigurtë (me TX-guard) ===================== */
 
-function copy_single_lesson(PDO $pdo, int $sourceLessonId, int $targetCourseId, int $targetSectionId, string $area = 'MATERIALS'): array {
+function copy_single_lesson(PDO $pdo, int $sourceLessonId, int $targetCourseId, int $targetSectionId): array {
   $started = _tx_start_if_needed($pdo);
   try {
     $newId = copy_lesson_deep($pdo, $sourceLessonId, $targetCourseId, $targetSectionId);
-    $siId  = link_item_to_section($pdo, $targetCourseId, $targetSectionId, $area, 'LESSON', $newId, 1);
+    $siId  = link_item_to_section($pdo, $targetCourseId, $targetSectionId, 'LESSON', $newId, 1);
     _tx_commit_if_started($pdo, $started);
     return ['ok'=>true, 'item_id'=>$newId, 'si_id'=>$siId];
   } catch (Throwable $e) {
@@ -261,11 +261,11 @@ function copy_single_lesson(PDO $pdo, int $sourceLessonId, int $targetCourseId, 
   }
 }
 
-function copy_single_assignment(PDO $pdo, int $sourceAssignmentId, int $targetCourseId, int $targetSectionId, string $area = 'MATERIALS'): array {
+function copy_single_assignment(PDO $pdo, int $sourceAssignmentId, int $targetCourseId, int $targetSectionId): array {
   $started = _tx_start_if_needed($pdo);
   try {
     $newId = copy_assignment_deep($pdo, $sourceAssignmentId, $targetCourseId, $targetSectionId);
-    $siId  = link_item_to_section($pdo, $targetCourseId, $targetSectionId, $area, 'ASSIGNMENT', $newId, 1);
+    $siId  = link_item_to_section($pdo, $targetCourseId, $targetSectionId, 'ASSIGNMENT', $newId, 1);
     _tx_commit_if_started($pdo, $started);
     return ['ok'=>true, 'item_id'=>$newId, 'si_id'=>$siId];
   } catch (Throwable $e) {
@@ -274,11 +274,11 @@ function copy_single_assignment(PDO $pdo, int $sourceAssignmentId, int $targetCo
   }
 }
 
-function copy_single_quiz(PDO $pdo, int $sourceQuizId, int $targetCourseId, int $targetSectionId, string $area = 'MATERIALS'): array {
+function copy_single_quiz(PDO $pdo, int $sourceQuizId, int $targetCourseId, int $targetSectionId): array {
   $started = _tx_start_if_needed($pdo);
   try {
     $newId = copy_quiz_deep($pdo, $sourceQuizId, $targetCourseId, $targetSectionId);
-    $siId  = link_item_to_section($pdo, $targetCourseId, $targetSectionId, $area, 'QUIZ', $newId, 1);
+    $siId  = link_item_to_section($pdo, $targetCourseId, $targetSectionId, 'QUIZ', $newId, 1);
     _tx_commit_if_started($pdo, $started);
     return ['ok'=>true, 'item_id'=>$newId, 'si_id'=>$siId];
   } catch (Throwable $e) {
@@ -288,7 +288,7 @@ function copy_single_quiz(PDO $pdo, int $sourceQuizId, int $targetCourseId, int 
 }
 
 /** Për TEXT: burimi është section_items.id (TEXT) në kursin burim. */
-function copy_single_text(PDO $pdo, int $sourceCourseId, int $sourceSectionItemId, int $targetCourseId, int $targetSectionId, string $area = 'MATERIALS'): array {
+function copy_single_text(PDO $pdo, int $sourceCourseId, int $sourceSectionItemId, int $targetCourseId, int $targetSectionId): array {
   $started = _tx_start_if_needed($pdo);
   try {
     if (_section_items_has_area($pdo)) {
@@ -302,7 +302,7 @@ function copy_single_text(PDO $pdo, int $sourceCourseId, int $sourceSectionItemI
     $row = $q->fetch(PDO::FETCH_ASSOC);
     if (!$row) throw new RuntimeException('TEXT burim nuk u gjet.');
 
-    $siId = create_text_block($pdo, $targetCourseId, $targetSectionId, $area, (string)$row['content_md'], 1);
+    $siId = create_text_block($pdo, $targetCourseId, $targetSectionId, (string)$row['content_md'], 1);
 
     _tx_commit_if_started($pdo, $started);
     return ['ok'=>true, 'item_id'=>0, 'si_id'=>$siId];
@@ -312,49 +312,40 @@ function copy_single_text(PDO $pdo, int $sourceCourseId, int $sourceSectionItemI
   }
 }
 
-function copy_single_text_block(PDO $pdo, int $sourceCourseId, int $sourceSectionItemId, int $targetCourseId, int $targetSectionId, string $area = 'MATERIALS'): array {
-  return copy_single_text($pdo, $sourceCourseId, $sourceSectionItemId, $targetCourseId, $targetSectionId, $area);
+function copy_single_text_block(PDO $pdo, int $sourceCourseId, int $sourceSectionItemId, int $targetCourseId, int $targetSectionId): array {
+  return copy_single_text($pdo, $sourceCourseId, $sourceSectionItemId, $targetCourseId, $targetSectionId);
 }
 
 /* ===================== API e përgjithshme ===================== */
 
-function copy_single_item(PDO $pdo, int $targetCourseId, int $targetSectionId, string $area, string $itemType, int $sourceCourseId, int $sourceItemId): array {
+function copy_single_item(PDO $pdo, int $targetCourseId, int $targetSectionId, string $itemType, int $sourceCourseId, int $sourceItemId): array {
   $itemType = strtoupper(trim($itemType));
   if (!in_array($itemType, ['LESSON','ASSIGNMENT','QUIZ','TEXT'], true)) {
     throw new InvalidArgumentException('Lloj elementi i pavlefshëm.');
   }
-  if ($itemType === 'LESSON')     return copy_single_lesson($pdo, $sourceItemId, $targetCourseId, $targetSectionId, $area);
-  if ($itemType === 'ASSIGNMENT') return copy_single_assignment($pdo, $sourceItemId, $targetCourseId, $targetSectionId, $area);
-  if ($itemType === 'QUIZ')       return copy_single_quiz($pdo, $sourceItemId, $targetCourseId, $targetSectionId, $area);
-  return copy_single_text($pdo, $sourceCourseId, $sourceItemId, $targetCourseId, $targetSectionId, $area);
+  if ($itemType === 'LESSON')     return copy_single_lesson($pdo, $sourceItemId, $targetCourseId, $targetSectionId);
+  if ($itemType === 'ASSIGNMENT') return copy_single_assignment($pdo, $sourceItemId, $targetCourseId, $targetSectionId);
+  if ($itemType === 'QUIZ')       return copy_single_quiz($pdo, $sourceItemId, $targetCourseId, $targetSectionId);
+  return copy_single_text($pdo, $sourceCourseId, $sourceItemId, $targetCourseId, $targetSectionId);
 }
 
-/**
- * Kopjon një seksion të plotë (me të gjithë elementët) nga kursi burim te kursi target.
- * Seksioni i ri bëhet hidden=1 dhe edhe item-et hidden=1 (që të mos dalin menjëherë).
- */
-function copy_section_with_items(PDO $pdo, int $sourceCourseId, int $sourceSectionId, int $targetCourseId, string $area = 'MATERIALS'): array {
-  if (_sections_has_area($pdo)) {
-    $qs = $pdo->prepare("SELECT * FROM sections WHERE id=? AND course_id=? AND area=?");
-    $qs->execute([$sourceSectionId, $sourceCourseId, $area]);
-  } else {
-    $qs = $pdo->prepare("SELECT * FROM sections WHERE id=? AND course_id=?");
-    $qs->execute([$sourceSectionId, $sourceCourseId]);
-  }
+function copy_section_with_items(PDO $pdo, int $sourceCourseId, int $sourceSectionId, int $targetCourseId): array {
+  $qs = $pdo->prepare("SELECT * FROM sections WHERE id=? AND course_id=?");
+  $qs->execute([$sourceSectionId, $sourceCourseId]);
 
   $sec = $qs->fetch(PDO::FETCH_ASSOC);
   if (!$sec) return ['ok'=>false, 'error'=>'Seksioni burim nuk u gjet.'];
 
   $started = _tx_start_if_needed($pdo);
   try {
-    $pos = sec_next_pos($pdo, $targetCourseId, $area);
+    $pos = sec_next_pos($pdo, $targetCourseId);
 
     if (_sections_has_area($pdo)) {
       $insSec = $pdo->prepare("
         INSERT INTO sections (course_id, title, description, position, hidden, highlighted, area, created_at, updated_at)
         VALUES (?,?,?,?,1,0,?,NOW(),NOW())
       ");
-      $insSec->execute([$targetCourseId, $sec['title'], $sec['description'], $pos, $area]);
+      $insSec->execute([$targetCourseId, $sec['title'], $sec['description'], $pos, 'GENERAL']);
     } else {
       $insSec = $pdo->prepare("
         INSERT INTO sections (course_id, title, description, position, hidden, highlighted, created_at, updated_at)
@@ -365,21 +356,12 @@ function copy_section_with_items(PDO $pdo, int $sourceCourseId, int $sourceSecti
 
     $newSectionId = (int)$pdo->lastInsertId();
 
-    if (_section_items_has_area($pdo)) {
-      $qi = $pdo->prepare("
-        SELECT * FROM section_items
-        WHERE course_id=? AND area=? AND section_id=?
-        ORDER BY position ASC, id ASC
-      ");
-      $qi->execute([$sourceCourseId, $area, $sourceSectionId]);
-    } else {
-      $qi = $pdo->prepare("
-        SELECT * FROM section_items
-        WHERE course_id=? AND section_id=?
-        ORDER BY position ASC, id ASC
-      ");
-      $qi->execute([$sourceCourseId, $sourceSectionId]);
-    }
+    $qi = $pdo->prepare("
+      SELECT * FROM section_items
+      WHERE course_id=? AND section_id=?
+      ORDER BY position ASC, id ASC
+    ");
+    $qi->execute([$sourceCourseId, $sourceSectionId]);
 
     $resultMap = ['LESSON'=>[], 'ASSIGNMENT'=>[], 'QUIZ'=>[], 'TEXT'=>[]];
 
@@ -388,18 +370,18 @@ function copy_section_with_items(PDO $pdo, int $sourceCourseId, int $sourceSecti
 
       if ($type === 'LESSON') {
         $newId = copy_lesson_deep($pdo, (int)$it['item_ref_id'], $targetCourseId, $newSectionId);
-        $newSi = link_item_to_section($pdo, $targetCourseId, $newSectionId, $area, 'LESSON', $newId, 1);
+        $newSi = link_item_to_section($pdo, $targetCourseId, $newSectionId, 'LESSON', $newId, 1);
         $resultMap['LESSON'][] = ['from'=>$it['item_ref_id'], 'to'=>$newId, 'si'=>$newSi];
       } elseif ($type === 'ASSIGNMENT') {
         $newId = copy_assignment_deep($pdo, (int)$it['item_ref_id'], $targetCourseId, $newSectionId);
-        $newSi = link_item_to_section($pdo, $targetCourseId, $newSectionId, $area, 'ASSIGNMENT', $newId, 1);
+        $newSi = link_item_to_section($pdo, $targetCourseId, $newSectionId, 'ASSIGNMENT', $newId, 1);
         $resultMap['ASSIGNMENT'][] = ['from'=>$it['item_ref_id'], 'to'=>$newId, 'si'=>$newSi];
       } elseif ($type === 'QUIZ') {
         $newId = copy_quiz_deep($pdo, (int)$it['item_ref_id'], $targetCourseId, $newSectionId);
-        $newSi = link_item_to_section($pdo, $targetCourseId, $newSectionId, $area, 'QUIZ', $newId, 1);
+        $newSi = link_item_to_section($pdo, $targetCourseId, $newSectionId, 'QUIZ', $newId, 1);
         $resultMap['QUIZ'][] = ['from'=>$it['item_ref_id'], 'to'=>$newId, 'si'=>$newSi];
       } elseif ($type === 'TEXT') {
-        $newSi = create_text_block($pdo, $targetCourseId, $newSectionId, $area, (string)$it['content_md'], 1);
+        $newSi = create_text_block($pdo, $targetCourseId, $newSectionId, (string)$it['content_md'], 1);
         $resultMap['TEXT'][] = ['from'=>$it['id'], 'si'=>$newSi];
       }
     }

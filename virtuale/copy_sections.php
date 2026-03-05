@@ -17,11 +17,6 @@ function is_ajax(): bool {
   );
 }
 
-function norm_area(string $area): string {
-  $a = strtoupper(trim($area));
-  return in_array($a, ['MATERIALS','LABS'], true) ? $a : 'MATERIALS';
-}
-
 function json_out(array $arr): never {
   header('Content-Type: application/json; charset=UTF-8');
   echo json_encode($arr, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -63,13 +58,11 @@ $in = ($_SERVER['REQUEST_METHOD'] === 'POST') ? $_POST : $_GET;
 $csrf           = (string)($in['csrf'] ?? '');
 $sourceCourseId = (int)($in['source_course_id'] ?? 0);
 $targetCourseId = (int)($in['course_id'] ?? ($in['target_course_id'] ?? 0));
-$area           = norm_area((string)($in['area'] ?? 'MATERIALS'));
 $sourceSections = $in['source_section_ids'] ?? $in['source_section_id'] ?? [];
-$tab            = ($area === 'LABS') ? 'labs' : 'materials';
 
 $redirectUrl = (string)(
   $in['return_to']
-  ?? ($_SERVER['HTTP_REFERER'] ?? "course_details.php?course_id={$targetCourseId}&tab={$tab}")
+  ?? ($_SERVER['HTTP_REFERER'] ?? "course_details.php?course_id={$targetCourseId}&tab=materials")
 );
 
 /* normalizo sourceSections */
@@ -124,7 +117,7 @@ try {
     $sid = (int)$sid;
     if ($sid <= 0) continue;
 
-    $res = copy_section_with_items($pdo, $sourceCourseId, $sid, $targetCourseId, $area);
+    $res = copy_section_with_items($pdo, $sourceCourseId, $sid, $targetCourseId);
 
     if (!($res['ok'] ?? false)) {
       throw new RuntimeException('S’u kopjua seksioni #' . $sid . ': ' . (string)($res['error'] ?? 'gabim.'));

@@ -1,5 +1,5 @@
 <?php
-// course_details_student.php — Berthama e kursit (STUDENT) me renditje sipas section_items (area='MATERIALS')
+// course_details_student.php — Berthama e kursit (STUDENT) me renditje sipas section_items
 declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/lib/database.php';
@@ -54,7 +54,6 @@ $CSRF = $_SESSION['csrf_token'];
 if (!isset($_GET['course_id']) || !is_numeric($_GET['course_id'])) { die('Kursi nuk është specifikuar.'); }
 $course_id = (int)$_GET['course_id'];
 $activeTab = isset($_GET['tab']) ? (string)$_GET['tab'] : '';
-$AREA_MAT  = 'MATERIALS';
 
 $validTabs = ['', 'overview', 'materials', 'forum', 'people', 'payments'];
 if (!in_array($activeTab, $validTabs, true)) {
@@ -85,16 +84,14 @@ $courseDescriptionHtml = $Parsedown->text((string)($course['description'] ?? '')
 
 /* ----------------------------- Feature flags --------------------------- */
 $SECTIONS_HAS_HIDDEN = table_has_column($pdo,'sections','hidden');
-$SECTIONS_HAS_AREA   = table_has_column($pdo,'sections','area');
 $ASSIGN_HAS_HIDDEN   = table_has_column($pdo,'assignments','hidden');
 $QUIZ_HAS_HIDDEN     = table_has_column($pdo,'quizzes','hidden');
 
-/* ------------------------------- Sections (area=MATERIALS) ------------- */
+/* ------------------------------- Sections ------------------------------- */
 try {
   $sqlSec = "SELECT id, course_id, title, description, position, hidden, highlighted
              FROM sections
              WHERE course_id=? ";
-  if ($SECTIONS_HAS_AREA)   $sqlSec .= " AND area='MATERIALS' ";
   if ($SECTIONS_HAS_HIDDEN) $sqlSec .= " AND (hidden=0 OR hidden IS NULL) ";
   $sqlSec .= " ORDER BY position ASC, id ASC";
   $stmtSec = $pdo->prepare($sqlSec);
@@ -122,8 +119,8 @@ try {
 } catch (Throwable $e) { /* ignore */ }
 
 /* =========================================================================
-   ITEMS NGA section_items (area='MATERIALS') – renditja & seksioni korrekt
-   ========================================================================= */
+  ITEMS NGA section_items – renditja & seksioni korrekt
+  ========================================================================= */
 $bySection   = [];                 // [section_id] => ['lessons'=>[], 'assignments'=>[], 'quizzes'=>[]]
 $unsectioned = ['lessons'=>[], 'assignments'=>[], 'quizzes'=>[]];
 $flatLessons = []; $flatAssignments = []; $flatQuizzes = [];
@@ -139,7 +136,7 @@ try {
     FROM section_items si
     JOIN lessons l
       ON si.item_type='LESSON' AND si.item_ref_id=l.id AND l.course_id=si.course_id
-    WHERE si.course_id=? AND si.area='MATERIALS' AND si.hidden=0
+    WHERE si.course_id=? AND si.hidden=0
     ORDER BY si.section_id ASC, si.position ASC, si.id ASC
   ");
   $stmt->execute([$course_id]);
@@ -172,7 +169,7 @@ try {
     FROM section_items si
     JOIN assignments a
       ON si.item_type='ASSIGNMENT' AND si.item_ref_id=a.id AND a.course_id=si.course_id
-    WHERE si.course_id=? AND si.area='MATERIALS' AND si.hidden=0
+    WHERE si.course_id=? AND si.hidden=0
   ";
   if ($ASSIGN_HAS_HIDDEN) $sql .= " AND a.hidden=0 ";
   $sql .= " ORDER BY si.section_id ASC, si.position ASC, si.id ASC";
@@ -210,7 +207,7 @@ try {
     FROM section_items si
     JOIN quizzes q
       ON si.item_type='QUIZ' AND si.item_ref_id=q.id AND q.course_id=si.course_id
-    WHERE si.course_id=? AND si.area='MATERIALS' AND si.hidden=0
+    WHERE si.course_id=? AND si.hidden=0
       AND q.status='PUBLISHED' ";
   if ($QUIZ_HAS_HIDDEN) $sql .= " AND q.hidden=0 ";
   $sql .= " ORDER BY si.section_id ASC, si.position ASC, si.id ASC";
