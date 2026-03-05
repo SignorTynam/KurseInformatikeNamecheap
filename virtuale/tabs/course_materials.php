@@ -754,13 +754,21 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                             $lessonId    = (int)($it['l_id'] ?? 0);
                             $lessonTitle = $it['l_title'] ?? ('Leksion #' . $lessonId);
                             $uploaded    = $it['l_up'] ?? null;
-                            $cat         = $it['l_cat'] ?? '';
+                          $cat         = strtoupper(trim((string)($it['l_cat'] ?? '')));
                             [$ic, $col]  = catMeta($cat, $iconMap);
                             $itemIcon    = $ic;
                             $iconColor   = $col;
 
-                            // Link gjithmonë tek lesson_details.php
+                          // Default: hap detajet; për FILE hap skedarin direkt.
                             $href = 'lesson_details.php?lesson_id=' . $lessonId;
+                          if ($cat === 'FILE') {
+                            $filePath = (string)($fileMap[$lessonId] ?? '');
+                            if ($filePath !== '') {
+                              $href = $filePath;
+                            } elseif (!empty($it['l_url'])) {
+                              $href = (string)$it['l_url'];
+                            }
+                          }
 
                             $metaParts = [];
                             if ($cat !== '') $metaParts[] = strtoupper($cat);

@@ -929,7 +929,11 @@ if (!isset($Parsedown) || !is_object($Parsedown)) {
                           if ($cat === 'FILE') {
                             if (!empty($fileMap[(int)$it['l_id']])) {
                               $href  = $fileMap[(int)$it['l_id']];
-                              $attrs = ' download';
+                              $attrs = ' target="_blank" rel="noopener"';
+                            } elseif (!empty($it['l_url'])) {
+                              // Fallback kur path-i i skedarit ruhet te URL/url.
+                              $href  = (string)$it['l_url'];
+                              $attrs = ' target="_blank" rel="noopener"';
                             }
                           } elseif (in_array($cat, ['VIDEO', 'LINK', 'REFERENCA'], true)) {
                             if (!empty($it['l_url']) && filter_var((string)$it['l_url'], FILTER_VALIDATE_URL)) {
