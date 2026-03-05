@@ -941,7 +941,7 @@ $hasNotebook    = !empty($lesson['notebook_path']);
                         <li><hr class="dropdown-divider"></li>
                         <li>
                           <form method="POST"
-                                action="delete_lesson.php"
+                                action="admin/delete_lesson.php"
                                 onsubmit="return confirm('Fshi përfundimisht këtë leksion?');"
                                 class="px-3 py-1">
                             <input type="hidden" name="csrf" value="<?= h(csrf_token()) ?>">
