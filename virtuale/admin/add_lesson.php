@@ -178,8 +178,6 @@ function save_lesson_images(PDO $pdo, int $lessonId, array $files, string $absRo
   $lessonDirAbs = $absRoot . '/' . $lessonId;
   ensure_dir($lessonDirAbs);
 
-  $maxBytes = 5 * 1024 * 1024;
-
   $stmtPos = $pdo->prepare("
     SELECT COALESCE(MAX(position), 0) + 1
     FROM lesson_images
@@ -198,7 +196,7 @@ function save_lesson_images(PDO $pdo, int $lessonId, array $files, string $absRo
     $size = (int)($files['size'][$i] ?? 0);
 
     if ($tmp === '' || !is_uploaded_file($tmp)) continue;
-    if ($size <= 0 || $size > $maxBytes) continue;
+    if ($size <= 0) continue;
     if (!validate_image_upload($tmp)) continue;
 
     $origName = (string)($files['name'][$i] ?? 'image');

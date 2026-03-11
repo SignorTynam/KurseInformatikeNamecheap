@@ -98,8 +98,6 @@ $LESSON_IMG_ABS = $BASE_ABS . '/uploads/lessons/images';
 $LESSON_IMG_REL = 'uploads/lessons/images/';
 ensure_dir($LESSON_IMG_ABS);
 
-$MAX_IMG_BYTES = 5 * 1024 * 1024; // 5MB për imazhet (ndrysho si do)
-
 /* ----------------------- Lexo leksionin + kursin ---------------------- */
 try {
   $stmt = $pdo->prepare("
@@ -258,8 +256,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Ngarkimi i fotos dështoi ({$key}).";
         continue;
       }
-      if ($size <= 0 || $size > $MAX_IMG_BYTES) {
-        $errors[] = "Foto shumë e madhe ({$key}). Max " . (int)($MAX_IMG_BYTES / 1024 / 1024) . "MB.";
+      if ($size <= 0) {
+        $errors[] = "Foto e pavlefshme ({$key}).";
         continue;
       }
 
@@ -772,7 +770,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  class="form-control form-control-sm km-block-imgfile"
                  name="img_files[${key}]"
                  accept="image/*">
-          <div class="form-text">JPG/PNG/GIF/WEBP – max 5MB</div>
+          <div class="form-text">JPG/PNG/GIF/WEBP</div>
           <div class="small mt-1 km-img-picked km-block-img-picked d-none"></div>
         </div>
 
