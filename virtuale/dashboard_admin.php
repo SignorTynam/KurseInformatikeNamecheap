@@ -17,6 +17,17 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrf = $_SESSION['csrf_token'];
 function h(?string $s): string { return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
+function meeting_platform_label(?string $url): string {
+    $u = trim((string)$url);
+    if ($u === '' || !filter_var($u, FILTER_VALIDATE_URL)) return 'Lidhu';
+    $host = strtolower((string)(parse_url($u, PHP_URL_HOST) ?? ''));
+    if ($host === '') return 'Lidhu';
+    if (str_contains($host, 'teams.') || str_contains($host, 'microsoft.')) return 'Teams';
+    if (str_contains($host, 'zoom.')) return 'Zoom';
+    if (str_contains($host, 'meet.google.') || str_contains($host, 'google.')) return 'Google Meet';
+    if (str_contains($host, 'webex.')) return 'Webex';
+    return 'Lidhu';
+}
 
 /* ----------------------------- AJAX Actions (POST + CSRF) ---------------- */
 // Shtuar "toggle_message_read" për shënimin e mesazhit si lexuar/pa lexuar
@@ -387,67 +398,40 @@ $JS_DATA = [
 
     <!-- BANERI i seancës (me LIVE window) -->
     <?php if (!empty($nextSession)): ?>
-      <div class="mt-3 cta-join d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="small">
-          <i class="fa-regular fa-clock me-1"></i>
-          <?php if (!empty($isLiveNext)): ?>
-            <span class="badge bg-danger me-2">LIVE</span>
-            <strong class="brand-heading"><?= h($nextSession['appointment_title']) ?></strong> •
-            <?= date('d M Y, H:i', strtotime($nextSession['appointment_date'])) ?> •
-                                                <a href="course_details.php?course_id=<?= (int)$nextSession['course_id'] ?>" class="fw-semibold text-reset text-decoration-underline"><?= h($nextSession['course_title']) ?></a>
-                        <span class="ms-2 text-muted">Leksioni është duke u zhvilluar LIVE.</span>
-          <?php else: ?>
-            Seanca e radhës: <strong class="brand-heading"><?= h($nextSession['appointment_title']) ?></strong> •
-            <?= date('d M Y, H:i', strtotime($nextSession['appointment_date'])) ?> •
-                                                <a href="course_details.php?course_id=<?= (int)$nextSession['course_id'] ?>" class="fw-semibold text-reset text-decoration-underline"><?= h($nextSession['course_title']) ?></a>
-          <?php endif; ?>
-        </div>
-        <?php if ($nextLink && filter_var($nextLink, FILTER_VALIDATE_URL)): ?>
-          <a class="btn btn-sm btn-light" target="_blank" rel="noopener" href="<?= h($nextLink) ?>">
-            <i class="fa-solid fa-video me-1"></i><?= !empty($isLiveNext) ? 'HYR TANI' : 'LIDHU TANI' ?>
-          </a>
-        <?php endif; ?>
-      </div>
+            <?php if (!empty($stats['upcoming_lessons'])): ?>
+                <div class="cta-upcoming mt-2">
+                    <div class="cta-upcoming-list">
+                        <?php foreach ($stats['upcoming_lessons'] as $idx => $lesson): ?>
+                            <?php
+                                $lessonLink = trim((string)(($lesson['custom_link'] ?? '') !== '' ? $lesson['custom_link'] : ($lesson['meeting_link'] ?? '')));
+                                $lessonPlatform = meeting_platform_label($lessonLink);
+                            ?>
+                            <article class="cta-upcoming-item">
+                                <div class="cta-upcoming-when" aria-label="Koha e leksionit">
+                                    <span class="cta-upcoming-day"><?= date('d M', strtotime($lesson['appointment_date'])) ?></span>
+                                    <span class="cta-upcoming-time"><?= date('H:i', strtotime($lesson['appointment_date'])) ?></span>
+                                </div>
+                                <div class="cta-upcoming-meta">
+                                    <a href="course_details.php?course_id=<?= (int)$lesson['course_id'] ?>" class="cta-upcoming-title-link"><?= h($lesson['appointment_title']) ?></a>
+                                    <a href="course_details.php?course_id=<?= (int)$lesson['course_id'] ?>" class="cta-upcoming-course"><?= h($lesson['course_title']) ?></a>
+                                </div>
+                                <?php if ($lessonLink !== '' && filter_var($lessonLink, FILTER_VALIDATE_URL)): ?>
+                                    <div class="cta-upcoming-actions">
+                                        <a class="cta-upcoming-join" target="_blank" rel="noopener" href="<?= h($lessonLink) ?>">
+                                            <i class="fa-solid fa-video me-1"></i><?= h($lessonPlatform) ?>
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
     <?php endif; ?>
   </div>
 </section>
 
 <div class="container">
-    <div class="row g-3 mb-4 upcoming-lessons-wrap">
-        <div class="col-12">
-            <div class="card card-elev h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-3 upcoming-lessons-head">
-                        <h2 class="h5 mb-0 brand-heading">Të gjitha leksionet e ardhshme</h2>
-                        <span class="badge upcoming-lessons-count"><?= count($stats['upcoming_lessons']) ?></span>
-                    </div>
-
-                    <?php if (!empty($stats['upcoming_lessons'])): ?>
-                        <div class="upcoming-lessons-list">
-                            <?php foreach ($stats['upcoming_lessons'] as $idx => $lesson): ?>
-                                <?php $isNextLesson = ($idx === 0); ?>
-                                <div class="upcoming-lesson-item <?= $isNextLesson ? 'is-next' : '' ?>">
-                                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-2 upcoming-lesson-row">
-                                        <div class="upcoming-lesson-meta">
-                                            <?php if ($isNextLesson): ?>
-                                                <span class="badge upcoming-lesson-next-badge mb-1">LEKSIONI I RADHËS</span>
-                                            <?php endif; ?>
-                                            <div class="fw-semibold brand-heading upcoming-lesson-title"><?= h($lesson['appointment_title']) ?></div>
-                                            <div class="small text-muted upcoming-lesson-date"><?= date('d M Y, H:i', strtotime($lesson['appointment_date'])) ?></div>
-                                        </div>
-                                        <a href="course_details.php?course_id=<?= (int)$lesson['course_id'] ?>" class="fw-semibold upcoming-lesson-course"><?= h($lesson['course_title']) ?></a>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <p class="text-muted mb-0">Nuk ka leksione të planifikuara për momentin.</p>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="row g-3 mb-4">
         <div class="col-12 col-lg-12">
             <div class="card card-elev h-100">
