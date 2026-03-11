@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 03, 2026 at 01:34 PM
--- Server version: 11.4.9-MariaDB-cll-lve-log
+-- Generation Time: Mar 11, 2026 at 07:18 AM
+-- Server version: 11.4.10-MariaDB-cll-lve-log
 -- PHP Version: 8.3.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -724,6 +724,22 @@ CREATE TABLE `lesson_images` (
   `alt_text` varchar(255) DEFAULT NULL,
   `position` int(11) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lesson_videos`
+--
+
+CREATE TABLE `lesson_videos` (
+  `id` int(11) NOT NULL,
+  `lesson_id` int(11) NOT NULL,
+  `video_url` varchar(1024) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `position` int(11) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1636,6 +1652,7 @@ ALTER TABLE `attempt_question_scores`
 ALTER TABLE `courses`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uq_courses_access_code` (`access_code`),
+  ADD UNIQUE KEY `ux_courses_access_code` (`access_code`),
   ADD KEY `idx_courses_creator` (`id_creator`);
 
 --
@@ -1723,6 +1740,14 @@ ALTER TABLE `lesson_images`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_limg_lesson` (`lesson_id`),
   ADD KEY `idx_limg_lesson_pos` (`lesson_id`,`position`);
+
+--
+-- Indexes for table `lesson_videos`
+--
+ALTER TABLE `lesson_videos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_lv_lesson` (`lesson_id`),
+  ADD KEY `idx_lv_lesson_pos` (`lesson_id`,`position`);
 
 --
 -- Indexes for table `messages`
@@ -2041,6 +2066,12 @@ ALTER TABLE `lesson_files`
 --
 ALTER TABLE `lesson_images`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `lesson_videos`
+--
+ALTER TABLE `lesson_videos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `messages`
