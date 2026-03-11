@@ -21,7 +21,7 @@ function detect_mime(string $tmpPath): string {
   return (string)($finfo->file($tmpPath) ?: '');
 }
 
-/** Attachment validator (si te add_lesson.php) */
+/** Attachment validator (si te add_lesson.php): PDF pa limit aplikativ; të tjerat max 15MB */
 function validate_attachment_upload(array $f, int $maxBytes = 15728640): array {
   if (($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
     return [false, 'Skedari nuk u ngarkua (error).', null, null];
@@ -29,13 +29,16 @@ function validate_attachment_upload(array $f, int $maxBytes = 15728640): array {
   if (!is_uploaded_file($f['tmp_name'] ?? '')) {
     return [false, 'Skedari nuk është valid (upload).', null, null];
   }
-  $size = (int)($f['size'] ?? 0);
-  if ($size <= 0 || $size > $maxBytes) {
-    return [false, 'Skedari është shumë i madh (max 15MB).', null, null];
-  }
-
   $name = (string)($f['name'] ?? '');
   $ext  = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+  $size = (int)($f['size'] ?? 0);
+  if ($size <= 0) {
+    return [false, 'Skedari është i pavlefshëm (size).', null, null];
+  }
+  if ($ext !== 'pdf' && $size > $maxBytes) {
+    return [false, 'Skedari është shumë i madh (max 15MB për formate jo-PDF).', null, null];
+  }
+
   $mime = detect_mime((string)$f['tmp_name']); // informative
 
   $allowedExt = [
@@ -642,7 +645,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="km-help-text mt-2">
-              Maksimumi 15MB. Për FILE është material kryesor; për LEKSION/LAB material shtesë.
+              PDF nuk ka limit aplikativ; formatet e tjera kanë maksimum 15MB. Për FILE është material kryesor; për LEKSION/LAB material shtesë.
             </div>
 
             <?php if (!empty($lessonFiles)): ?>
