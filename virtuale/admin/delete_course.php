@@ -120,38 +120,159 @@ try {
   $stmtAS->execute([$course_id]);
   foreach ($stmtAS->fetchAll(PDO::FETCH_COLUMN) as $p) { if ($p) $files[] = (string)$p; }
 
+  // Imazhet e leksioneve (lesson_images)
+  $stmtLI = $pdo->prepare("
+    SELECT li.file_path
+    FROM lesson_images li
+    JOIN lessons l ON l.id = li.lesson_id
+    WHERE l.course_id = ?
+  ");
+  $stmtLI->execute([$course_id]);
+  foreach ($stmtLI->fetchAll(PDO::FETCH_COLUMN) as $p) { if ($p) $files[] = (string)$p; }
+
+  // Imazhet e pyetjeve të bankës (question_bank)
+  $stmtQBI = $pdo->prepare("SELECT image_path FROM question_bank WHERE course_id = ? AND image_path IS NOT NULL");
+  $stmtQBI->execute([$course_id]);
+  foreach ($stmtQBI->fetchAll(PDO::FETCH_COLUMN) as $p) { if ($p) $files[] = (string)$p; }
+
+  // Skedarët e ngarkuar nga studentët në course_test_attempt_answers
+  $stmtCTAA = $pdo->prepare("
+    SELECT ctaa.file_path
+    FROM course_test_attempt_answers ctaa
+    JOIN course_test_attempts cta ON cta.id = ctaa.attempt_id
+    JOIN course_tests ct ON ct.id = cta.test_id
+    WHERE ct.course_id = ? AND ctaa.file_path IS NOT NULL AND ctaa.file_path <> ''
+  ");
+  $stmtCTAA->execute([$course_id]);
+  foreach ($stmtCTAA->fetchAll(PDO::FETCH_COLUMN) as $p) { if ($p) $files[] = (string)$p; }
+
   // Hiq duplikatat e mundshme
   $files = array_values(array_unique(array_filter($files, fn($x) => is_string($x) && $x !== '')));
 
   /* ------------------------ Fshirja në DB ----------------------------- */
   $pdo->beginTransaction();
 
-  // 1) Pastrim i section_items (nuk ka FK te courses, ndaj bëje me dorë)
-  $pdo->prepare("DELETE FROM section_items WHERE course_id = ?")->execute([$course_id]);
-
-  // 2) Pastrim i user_reads për iteme të këtij kursi (për të shmangur orphan)
-  // LESSON
+  // — Pastrim i user_reads para se të fshihen leksionet/detyrat/kuizet
   $pdo->prepare("
     DELETE ur FROM user_reads ur
     WHERE ur.item_type='LESSON'
       AND ur.item_id IN (SELECT id FROM lessons WHERE course_id = ?)
   ")->execute([$course_id]);
-  // ASSIGNMENT
   $pdo->prepare("
     DELETE ur FROM user_reads ur
     WHERE ur.item_type='ASSIGNMENT'
       AND ur.item_id IN (SELECT id FROM assignments WHERE course_id = ?)
   ")->execute([$course_id]);
-  // QUIZ
   $pdo->prepare("
     DELETE ur FROM user_reads ur
     WHERE ur.item_type='QUIZ'
       AND ur.item_id IN (SELECT id FROM quizzes WHERE course_id = ?)
   ")->execute([$course_id]);
 
-  // 3) Fshi vetë kursin — FK CASCADE do pastrojë lessons, lesson_files, assignments,
-  //    assignments_files, assignments_submitted, quizzes, quiz_questions/answers/attempts,
-  //    enroll, appointments, payments, sections, threads (me course_id), events? (jo, s'varen nga kursi)
+  // — Diskutime & përgjigjet e tyre (MyISAM, pa FK)
+  $pdo->prepare("
+    DELETE tr FROM thread_replies tr
+    JOIN threads t ON t.id = tr.thread_id
+    WHERE t.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("DELETE FROM threads WHERE course_id = ?")->execute([$course_id]);
+
+  // — Shënime studentësh mbi leksione (MyISAM, pa FK)
+  $pdo->prepare("
+    DELETE n FROM notes n
+    JOIN lessons l ON l.id = n.lesson_id
+    WHERE l.course_id = ?
+  ")->execute([$course_id]);
+
+  // — Materialet e leksioneve: video, imazhe, skedarë (pa FK CASCADE)
+  $pdo->prepare("
+    DELETE lv FROM lesson_videos lv
+    JOIN lessons l ON l.id = lv.lesson_id
+    WHERE l.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("
+    DELETE li FROM lesson_images li
+    JOIN lessons l ON l.id = li.lesson_id
+    WHERE l.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("
+    DELETE lf FROM lesson_files lf
+    JOIN lessons l ON l.id = lf.lesson_id
+    WHERE l.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("DELETE FROM lessons WHERE course_id = ?")->execute([$course_id]);
+
+  // — course_tests + zinxhiri i tyre (MyISAM, pa FK)
+  $pdo->prepare("
+    DELETE ctqo FROM course_test_question_options ctqo
+    JOIN course_test_questions ctq ON ctq.id = ctqo.question_id
+    JOIN course_tests ct ON ct.id = ctq.test_id
+    WHERE ct.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("
+    DELETE ctq FROM course_test_questions ctq
+    JOIN course_tests ct ON ct.id = ctq.test_id
+    WHERE ct.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("
+    DELETE ctaa FROM course_test_attempt_answers ctaa
+    JOIN course_test_attempts cta ON cta.id = ctaa.attempt_id
+    JOIN course_tests ct ON ct.id = cta.test_id
+    WHERE ct.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("
+    DELETE cta FROM course_test_attempts cta
+    JOIN course_tests ct ON ct.id = cta.test_id
+    WHERE ct.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("DELETE FROM course_tests WHERE course_id = ?")->execute([$course_id]);
+
+  // — tests (InnoDB) + zinxhiri i tyre (pa FK CASCADE te tests)
+  //   attempt_answers dhe attempt_question_scores fshihen via FK CASCADE nga test_attempts
+  $pdo->prepare("
+    DELETE tq FROM test_questions tq
+    JOIN tests t ON t.id = tq.test_id
+    WHERE t.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("
+    DELETE tal FROM test_audit_log tal
+    JOIN tests t ON t.id = tal.test_id
+    WHERE t.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("
+    DELETE ta FROM test_attempts ta
+    JOIN tests t ON t.id = ta.test_id
+    WHERE t.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("DELETE FROM tests WHERE course_id = ?")->execute([$course_id]);
+
+  // — Detyra: dorëzime, bashkëngjitje, vetë detyrat (MyISAM / pa FK)
+  $pdo->prepare("
+    DELETE s FROM assignments_submitted s
+    JOIN assignments a ON a.id = s.assignment_id
+    WHERE a.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("
+    DELETE af FROM assignments_files af
+    JOIN assignments a ON a.id = af.assignment_id
+    WHERE a.course_id = ?
+  ")->execute([$course_id]);
+  $pdo->prepare("DELETE FROM assignments WHERE course_id = ?")->execute([$course_id]);
+
+  // — Takimet & regjistrimet (MyISAM, pa FK)
+  $pdo->prepare("DELETE FROM appointments WHERE course_id = ?")->execute([$course_id]);
+  $pdo->prepare("DELETE FROM enroll WHERE course_id = ?")->execute([$course_id]);
+
+  // — section_items dhe sections
+  $pdo->prepare("DELETE FROM section_items WHERE course_id = ?")->execute([$course_id]);
+  $pdo->prepare("DELETE FROM sections WHERE course_id = ?")->execute([$course_id]);
+
+  // — Fshi vetë kursin
+  //   FK CASCADE (InnoDB) do pastrojë automatikisht:
+  //   quizzes → quiz_questions → quiz_answers
+  //             quiz_attempts
+  //   question_bank → question_options
+  //   notifications.course_id → SET NULL (mbahen si histori)
   $pdo->prepare("DELETE FROM courses WHERE id = ? LIMIT 1")->execute([$course_id]);
 
   $pdo->commit();

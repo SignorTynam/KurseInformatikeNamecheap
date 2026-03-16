@@ -170,11 +170,13 @@ $sql = "
   SELECT si.*,
          l.id   AS l_id, l.title AS l_title, l.category AS l_cat, l.uploaded_at AS l_up, l.URL AS l_url,
          a.id   AS a_id, a.title AS a_title, a.due_date AS a_due,
-         q.id   AS q_id, q.title AS q_title, q.open_at AS q_open, q.close_at AS q_close
+         q.id   AS q_id, q.title AS q_title, q.open_at AS q_open, q.close_at AS q_close,
+         sf.id  AS f_id, sf.title AS f_title, sf.description AS f_desc
   FROM section_items si
   LEFT JOIN lessons l     ON si.item_type='LESSON'     AND si.item_ref_id=l.id
   LEFT JOIN assignments a ON si.item_type='ASSIGNMENT' AND si.item_ref_id=a.id
   LEFT JOIN quizzes q     ON si.item_type='QUIZ'       AND si.item_ref_id=q.id
+  LEFT JOIN section_folders sf ON si.item_type='FOLDER' AND si.item_ref_id=sf.id
   WHERE si.course_id=? AND si.section_id IN ($ph)
   ORDER BY si.section_id ASC, si.position ASC, si.id ASC
 ";
@@ -183,6 +185,40 @@ $stmtSI->execute(array_merge([$course_id], $secIds));
 $itemsBySection = [];
 while ($r = $stmtSI->fetch(PDO::FETCH_ASSOC)) {
   $itemsBySection[(int)$r['section_id']][] = $r;
+}
+
+$folderItemsByFolder = []; // [folder_id] => [ [lesson_id,title,category,url,file_path], ... ]
+$folderIds = [];
+foreach ($itemsBySection as $secItems) {
+  foreach ($secItems as $it) {
+    if (($it['item_type'] ?? '') === 'FOLDER' && !empty($it['f_id'])) {
+      $folderIds[] = (int)$it['f_id'];
+    }
+  }
+}
+$folderIds = array_values(array_unique($folderIds));
+
+if ($folderIds) {
+  try {
+    $phF = implode(',', array_fill(0, count($folderIds), '?'));
+    $qf = $pdo->prepare("\n      SELECT sfi.folder_id, sfi.position, l.id AS lesson_id, l.title, l.category, COALESCE(l.URL, l.url) AS lesson_url, lf.file_path\n      FROM section_folder_items sfi\n      JOIN lessons l ON l.id = sfi.lesson_id AND l.course_id = ?\n      LEFT JOIN (\n        SELECT x.lesson_id, x.file_path\n        FROM lesson_files x\n        JOIN (\n          SELECT lesson_id, MIN(id) AS min_id\n          FROM lesson_files\n          GROUP BY lesson_id\n        ) z ON z.lesson_id=x.lesson_id AND z.min_id=x.id\n      ) lf ON lf.lesson_id = l.id\n      WHERE sfi.folder_id IN ($phF)\n      ORDER BY sfi.folder_id ASC, sfi.position ASC, sfi.id ASC\n    ");
+    $qf->execute(array_merge([(int)$course_id], $folderIds));
+    while ($r = $qf->fetch(PDO::FETCH_ASSOC)) {
+      $fid = (int)$r['folder_id'];
+      $folderItemsByFolder[$fid][] = $r;
+    }
+  } catch (Throwable $e) {
+    $folderItemsByFolder = [];
+  }
+}
+
+$folderEligibleLessons = [];
+try {
+  $ql = $pdo->prepare("\n    SELECT id, title, UPPER(COALESCE(category,'')) AS category\n    FROM lessons\n    WHERE course_id=? AND UPPER(COALESCE(category,'')) IN ('FILE','VIDEO')\n    ORDER BY uploaded_at DESC, id DESC\n  ");
+  $ql->execute([(int)$course_id]);
+  $folderEligibleLessons = $ql->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Throwable $e) {
+  $folderEligibleLessons = [];
 }
 
 /* Ikona */
@@ -196,6 +232,7 @@ $iconMap = [
   'TJETER'    => ['bi-collection',    '#6c757d'],
   'ASSIGN'    => ['bi-clipboard-check','#0d6efd'],
   'QUIZ'      => ['bi-patch-question','#20c997'],
+  'FOLDER'    => ['bi-folder2-open',  '#f59f00'],
 ];
 
 if (!function_exists('catMeta')) {
@@ -336,6 +373,7 @@ if (!function_exists('h')) {
 $totalLessons      = 0;
 $totalAssignments  = 0;
 $totalQuizzes      = 0;
+$totalFolders      = 0;
 
 foreach ($itemsBySection as $sid => $items) {
   foreach ($items as $it) {
@@ -349,11 +387,14 @@ foreach ($itemsBySection as $sid => $items) {
       case 'QUIZ':
         $totalQuizzes++;
         break;
+      case 'FOLDER':
+        $totalFolders++;
+        break;
     }
   }
 }
 
-$totalItems    = $totalLessons + $totalAssignments + $totalQuizzes;
+$totalItems    = $totalLessons + $totalAssignments + $totalQuizzes + $totalFolders;
 $totalSections = 0;
 foreach ($allSec as $sec) {
   if ((int)$sec['id'] !== 0) {
@@ -737,13 +778,16 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                         } elseif ($type === 'QUIZ' && !empty($it['q_id'])) {
                             $anchorId = 'quiz-' . (int)$it['q_id'];
                           $refId = (int)$it['q_id'];
+                        } elseif ($type === 'FOLDER' && !empty($it['f_id'])) {
+                            $anchorId = 'folder-' . (int)$it['f_id'];
+                          $refId = (int)$it['f_id'];
                         } elseif ($type === 'TEXT') {
                             $anchorId = 'text-' . $siId;
                           $refId = $siId;
                         }
 
                         $toggleHref = '';
-                        if ($siId > 0 && in_array($type, ['LESSON','ASSIGNMENT','QUIZ','TEXT'], true)) {
+                        if ($siId > 0 && in_array($type, ['LESSON','ASSIGNMENT','QUIZ','TEXT','FOLDER'], true)) {
                           $toggleHref = 'actions/toggle_section_item_visibility.php?si_id=' . $siId
                             . '&action=' . ($hiddenI ? 'unhide' : 'hide')
                             . '&return=' . rawurlencode('course_details.php?course_id=' . (int)$course_id . '&tab=materials#' . $anchorId);
@@ -800,6 +844,14 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                             if ($openAt)  $metaParts[] = 'Hape: '  . date('d M Y, H:i', strtotime($openAt));
                             if ($closeAt) $metaParts[] = 'Mbyll: ' . date('d M Y, H:i', strtotime($closeAt));
                             $metaStr = implode(' • ', $metaParts);
+                        } elseif ($type === 'FOLDER') {
+                          $folderId    = (int)($it['f_id'] ?? 0);
+                          $folderTitle = (string)($it['f_title'] ?? ('Folder #' . $folderId));
+                          $folderDesc  = (string)($it['f_desc'] ?? '');
+                          $folderItems = $folderItemsByFolder[$folderId] ?? [];
+                          $itemIcon    = $iconMap['FOLDER'][0];
+                          $iconColor   = $iconMap['FOLDER'][1];
+                          $metaStr     = count($folderItems) . ' elemente';
                         }
                         ?>
                         <div class="<?= $elemCls ?>"
@@ -908,6 +960,52 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                                 <?php endif; ?>
                               </div>
 
+                            <?php elseif ($type === 'FOLDER'): ?>
+                              <div class="km-mat-elem-icon km-mat-elem-icon-rounded"
+                                   style="--km-mat-icon-bg: <?= h($iconColor) ?>;">
+                                <i class="bi <?= h($itemIcon) ?>"></i>
+                              </div>
+                              <div class="flex-grow-1">
+                                <strong><?= h($folderTitle) ?></strong>
+                                <?php if ($hiddenI): ?>
+                                  <span class="badge km-mat-badge-soft ms-2">
+                                    <i class="bi bi-eye-slash me-1"></i> Fshehur
+                                  </span>
+                                <?php endif; ?>
+                                <?php if (!empty($metaStr)): ?>
+                                  <div class="small text-muted"><?= h($metaStr) ?></div>
+                                <?php endif; ?>
+                                <?php if (!empty($folderDesc)): ?>
+                                  <div class="small text-muted mt-1"><?= h($folderDesc) ?></div>
+                                <?php endif; ?>
+                                <?php if (!empty($folderItems)): ?>
+                                  <div class="small mt-2">
+                                    <?php foreach ($folderItems as $fi): ?>
+                                      <?php
+                                      $fiLessonId = (int)($fi['lesson_id'] ?? 0);
+                                      $fiTitle = (string)($fi['title'] ?? ('Material #' . $fiLessonId));
+                                      $fiCat = strtoupper((string)($fi['category'] ?? ''));
+                                      $fiHref = 'lesson_details.php?lesson_id=' . $fiLessonId;
+                                      if ($fiCat === 'FILE' && !empty($fi['file_path'])) {
+                                        $fiHref = (string)$fi['file_path'];
+                                      } elseif (!empty($fi['lesson_url'])) {
+                                        $fiHref = (string)$fi['lesson_url'];
+                                      }
+                                      ?>
+                                      <div class="mb-1">
+                                        <i class="bi bi-dot me-1"></i>
+                                        <a href="<?= h($fiHref) ?>" target="_blank" class="text-decoration-none">
+                                          <?= h($fiTitle) ?>
+                                        </a>
+                                        <?php if ($fiCat !== ''): ?>
+                                          <span class="text-muted">(<?= h($fiCat) ?>)</span>
+                                        <?php endif; ?>
+                                      </div>
+                                    <?php endforeach; ?>
+                                  </div>
+                                <?php endif; ?>
+                              </div>
+
                             <?php else: ?>
                               <!-- Lloj tjetër i papërcaktuar -->
                               <div class="flex-grow-1">
@@ -931,6 +1029,14 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                                     <button class="btn btn-sm btn-outline-secondary only-edit"
                                       data-bs-toggle="modal"
                                       data-bs-target="#editTextModal-<?= $siId ?>"
+                                      data-action="edit-item"
+                                      type="button">
+                                <i class="bi bi-pencil"></i>
+                              </button>
+                            <?php elseif ($type === 'FOLDER' && $refId > 0): ?>
+                                    <button class="btn btn-sm btn-outline-secondary only-edit"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#editFolderModal-<?= (int)$refId ?>"
                                       data-action="edit-item"
                                       type="button">
                                 <i class="bi bi-pencil"></i>
@@ -1007,6 +1113,83 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                           </div>
                         <?php endif; ?>
 
+                        <?php if ($type === 'FOLDER' && !empty($it['f_id'])): ?>
+                          <?php
+                          $folderIdEdit = (int)$it['f_id'];
+                          $selectedLessonIds = [];
+                          foreach (($folderItemsByFolder[$folderIdEdit] ?? []) as $fiRow) {
+                            $selectedLessonIds[] = (int)($fiRow['lesson_id'] ?? 0);
+                          }
+                          $selectedLessonIds = array_values(array_unique($selectedLessonIds));
+                          ?>
+                          <div class="modal fade"
+                               id="editFolderModal-<?= $folderIdEdit ?>"
+                               tabindex="-1"
+                               aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                              <form class="modal-content"
+                                    method="post"
+                                    action="folder_actions.php">
+                                <input type="hidden" name="csrf" value="<?= h($CSRF) ?>">
+                                <input type="hidden" name="action" value="update">
+                                <input type="hidden" name="course_id" value="<?= (int)$course_id ?>">
+                                <input type="hidden" name="section_id" value="<?= $sid ?>">
+                                <input type="hidden" name="folder_id" value="<?= $folderIdEdit ?>">
+                                <div class="modal-header">
+                                  <h5 class="modal-title">Modifiko Folder</h5>
+                                  <button class="btn-close"
+                                          data-bs-dismiss="modal"
+                                          type="button"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="mb-3">
+                                    <label class="form-label">Titulli i folder-it</label>
+                                    <input type="text"
+                                           class="form-control"
+                                           name="title"
+                                           maxlength="255"
+                                           required
+                                           value="<?= h((string)($it['f_title'] ?? '')) ?>">
+                                  </div>
+                                  <div class="mb-3">
+                                    <label class="form-label">Pershkrimi (opsional)</label>
+                                    <textarea class="form-control"
+                                              name="description"
+                                              rows="3"><?= h((string)($it['f_desc'] ?? '')) ?></textarea>
+                                  </div>
+                                  <div class="mb-2">
+                                    <label class="form-label">Elemente ne folder (vetem FILE / VIDEO)</label>
+                                    <select class="form-select"
+                                            name="lesson_ids[]"
+                                            multiple
+                                            size="8">
+                                      <?php foreach ($folderEligibleLessons as $fl): ?>
+                                        <?php $flId = (int)($fl['id'] ?? 0); ?>
+                                        <option value="<?= $flId ?>"
+                                          <?= in_array($flId, $selectedLessonIds, true) ? 'selected' : '' ?>>
+                                          <?= h((string)($fl['title'] ?? '')) ?>
+                                          (<?= h((string)($fl['category'] ?? '')) ?>)
+                                        </option>
+                                      <?php endforeach; ?>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div class="modal-footer">
+                                  <button class="btn btn-secondary"
+                                          type="button"
+                                          data-bs-dismiss="modal">
+                                    Anulo
+                                  </button>
+                                  <button class="btn btn-primary only-edit"
+                                          type="submit">
+                                    <i class="bi bi-save me-1"></i>Ruaj
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        <?php endif; ?>
+
                       <?php endforeach; ?>
                     <?php else: ?>
                       <div class="text-muted small px-3 py-2">
@@ -1020,6 +1203,12 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                           data-action="lesson"
                           role="button">
                         <i class="bi bi-journal-plus"></i> Leksion
+                      </div>
+                      <div class="km-mat-add-block-card only-edit"
+                          data-bs-toggle="modal"
+                          data-bs-target="#newFolderModal-<?= $sid ?>"
+                          role="button">
+                        <i class="bi bi-folder2-open"></i> Folder
                       </div>
                       <div class="km-mat-add-block-card only-edit"
                           data-action="assignment"
@@ -1043,6 +1232,73 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                           role="button">
                         <i class="bi bi-files"></i> Kopjo element
                       </div>
+                    </div>
+                  </div>
+
+                  <!-- MODAL: New Folder -->
+                  <div class="modal fade"
+                       id="newFolderModal-<?= $sid ?>"
+                       tabindex="-1"
+                       aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                      <form class="modal-content"
+                            method="post"
+                            action="folder_actions.php">
+                        <input type="hidden" name="csrf" value="<?= h($CSRF) ?>">
+                        <input type="hidden" name="action" value="create">
+                        <input type="hidden" name="course_id" value="<?= (int)$course_id ?>">
+                        <input type="hidden" name="section_id" value="<?= $sid ?>">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Shto Folder</h5>
+                          <button class="btn-close"
+                                  data-bs-dismiss="modal"
+                                  type="button"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label class="form-label">Titulli i folder-it</label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="title"
+                                   maxlength="255"
+                                   required>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Pershkrimi (opsional)</label>
+                            <textarea class="form-control"
+                                      name="description"
+                                      rows="3"></textarea>
+                          </div>
+                          <div class="mb-2">
+                            <label class="form-label">Elemente ne folder (vetem FILE / VIDEO)</label>
+                            <select class="form-select"
+                                    name="lesson_ids[]"
+                                    multiple
+                                    size="8">
+                              <?php foreach ($folderEligibleLessons as $fl): ?>
+                                <option value="<?= (int)($fl['id'] ?? 0) ?>">
+                                  <?= h((string)($fl['title'] ?? '')) ?>
+                                  (<?= h((string)($fl['category'] ?? '')) ?>)
+                                </option>
+                              <?php endforeach; ?>
+                            </select>
+                            <div class="form-text">
+                              Mbaje shtypur Ctrl (ose Cmd ne Mac) per te zgjedhur disa elemente.
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button class="btn btn-secondary"
+                                  type="button"
+                                  data-bs-dismiss="modal">
+                            Anulo
+                          </button>
+                          <button class="btn btn-primary only-edit"
+                                  type="submit">
+                            <i class="bi bi-save me-1"></i>Krijo Folder
+                          </button>
+                        </div>
+                      </form>
                     </div>
                   </div>
 
@@ -1485,6 +1741,12 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
           type="button">
     <i class="bi bi-journal-plus"></i>
   </button>
+      <button class="km-mat-fab"
+      data-action="folder"
+      title="Shto folder"
+      type="button">
+    <i class="bi bi-folder2-open"></i>
+      </button>
   <button class="km-mat-fab"
           data-action="assignment"
           title="Shto detyrë"
@@ -1789,6 +2051,9 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
         location.href = `admin/edit_assignment.php?assignment_id=${encodeURIComponent(refId)}`;
       } else if (type === 'QUIZ' && refId > 0) {
         location.href = `admin/quiz_builder.php?quiz_id=${encodeURIComponent(refId)}`;
+      } else if (type === 'FOLDER' && refId > 0) {
+        const modal = document.getElementById(`editFolderModal-${refId}`);
+        if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
       } else if (type === 'TEXT') {
         const modal = document.getElementById(`editTextModal-${siId}`);
         if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
@@ -1924,6 +2189,17 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
           bootstrap.Modal.getOrCreateInstance(m).show();
           return;
         }
+      }
+      showToast('warning','Zgjidh ose kliko një seksion përpara.');
+      return;
+    }
+
+    if (kind === 'folder') {
+      const sid = chooseSectionId();
+      const m = document.getElementById(`newFolderModal-${sid}`);
+      if (m) {
+        bootstrap.Modal.getOrCreateInstance(m).show();
+        return;
       }
       showToast('warning','Zgjidh ose kliko një seksion përpara.');
       return;

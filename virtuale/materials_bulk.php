@@ -161,6 +161,10 @@ try {
     $delQuiz        = $pdo->prepare("DELETE FROM quizzes WHERE id=? AND course_id=?");
     $delReadsQuiz   = $pdo->prepare("DELETE FROM user_reads WHERE item_type='QUIZ' AND item_id=?");
 
+    // Folders cleanup
+    $delFolderItems = $pdo->prepare("DELETE FROM section_folder_items WHERE folder_id=?");
+    $delFolder      = $pdo->prepare("DELETE FROM section_folders WHERE id=? AND course_id=?");
+
     foreach ($rows as $r) {
       $si_id = (int)$r['id'];
       $typ   = (string)$r['item_type'];
@@ -216,6 +220,10 @@ try {
         // InnoDB: quizzes ka cascade te quiz_questions/answers/attempts
         $delReadsQuiz->execute([$ref]);
         $delQuiz->execute([$ref, $course_id]);
+
+      } elseif ($typ === 'FOLDER') {
+        $delFolderItems->execute([$ref]);
+        $delFolder->execute([$ref, $course_id]);
 
       } else {
         // lloj tjetër i paparashikuar: vetëm linku u fshi më lart

@@ -97,6 +97,13 @@ function delete_section_and_items(PDO $pdo, int $course_id, int $section_id): vo
         $pdo->prepare("DELETE FROM section_items WHERE id=?")->execute([$si_id]);
         $pdo->prepare("DELETE FROM quizzes WHERE id=? AND course_id=?")->execute([$ref, $course_id]);
 
+      } elseif ($typ === 'FOLDER') {
+        try {
+          $pdo->prepare("DELETE FROM section_folder_items WHERE folder_id=?")->execute([$ref]);
+        } catch (Throwable $__) {}
+        $pdo->prepare("DELETE FROM section_items WHERE id=?")->execute([$si_id]);
+        $pdo->prepare("DELETE FROM section_folders WHERE id=? AND course_id=?")->execute([$ref, $course_id]);
+
       } else {
         // fallback: vetëm hiq lidhjen në section_items
         $pdo->prepare("DELETE FROM section_items WHERE id=?")->execute([$si_id]);
