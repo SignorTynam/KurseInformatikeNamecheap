@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 11, 2026 at 07:18 AM
+-- Generation Time: Mar 16, 2026 at 03:33 PM
 -- Server version: 11.4.10-MariaDB-cll-lve-log
 -- PHP Version: 8.3.30
 
@@ -1329,6 +1329,36 @@ CREATE TABLE `sections` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `section_folders`
+--
+
+CREATE TABLE `section_folders` (
+  `id` int(11) NOT NULL,
+  `course_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `section_folder_items`
+--
+
+CREATE TABLE `section_folder_items` (
+  `id` int(11) NOT NULL,
+  `folder_id` int(11) NOT NULL,
+  `lesson_id` int(11) NOT NULL,
+  `position` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `section_items`
 --
 
@@ -1337,7 +1367,7 @@ CREATE TABLE `section_items` (
   `course_id` int(11) NOT NULL,
   `area` enum('MATERIALS','LABS') NOT NULL DEFAULT 'MATERIALS',
   `section_id` int(11) NOT NULL,
-  `item_type` enum('LESSON','ASSIGNMENT','QUIZ','TEXT') NOT NULL,
+  `item_type` enum('LESSON','ASSIGNMENT','QUIZ','TEXT','FOLDER') NOT NULL,
   `item_ref_id` int(11) DEFAULT NULL,
   `content_md` mediumtext DEFAULT NULL,
   `hidden` tinyint(1) NOT NULL DEFAULT 0,
@@ -1873,6 +1903,23 @@ ALTER TABLE `sections`
   ADD KEY `idx_sections_course` (`course_id`);
 
 --
+-- Indexes for table `section_folders`
+--
+ALTER TABLE `section_folders`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_sf_course` (`course_id`),
+  ADD KEY `idx_sf_creator` (`created_by`);
+
+--
+-- Indexes for table `section_folder_items`
+--
+ALTER TABLE `section_folder_items`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_sfi_folder_lesson` (`folder_id`,`lesson_id`),
+  ADD KEY `idx_sfi_folder_pos` (`folder_id`,`position`),
+  ADD KEY `idx_sfi_lesson` (`lesson_id`);
+
+--
 -- Indexes for table `section_items`
 --
 ALTER TABLE `section_items`
@@ -2155,6 +2202,18 @@ ALTER TABLE `quiz_questions`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `section_folders`
+--
+ALTER TABLE `section_folders`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `section_folder_items`
+--
+ALTER TABLE `section_folder_items`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

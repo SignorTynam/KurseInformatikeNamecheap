@@ -966,7 +966,16 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
                                 <i class="bi <?= h($itemIcon) ?>"></i>
                               </div>
                               <div class="flex-grow-1">
-                                <strong><?= h($folderTitle) ?></strong>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                  <strong><?= h($folderTitle) ?></strong>
+                                  <?php if ($folderId > 0): ?>
+                                    <a class="btn btn-sm btn-outline-warning"
+                                       href="folder_view.php?folder_id=<?= (int)$folderId ?>"
+                                       target="_blank">
+                                      <i class="bi bi-box-arrow-up-right me-1"></i>Hap folderin
+                                    </a>
+                                  <?php endif; ?>
+                                </div>
                                 <?php if ($hiddenI): ?>
                                   <span class="badge km-mat-badge-soft ms-2">
                                     <i class="bi bi-eye-slash me-1"></i> Fshehur
@@ -2052,8 +2061,7 @@ window.KM_LISTS_BY_COURSE    = <?= json_encode($jsListsByCourse, $jsonOpts) ?>;
       } else if (type === 'QUIZ' && refId > 0) {
         location.href = `admin/quiz_builder.php?quiz_id=${encodeURIComponent(refId)}`;
       } else if (type === 'FOLDER' && refId > 0) {
-        const modal = document.getElementById(`editFolderModal-${refId}`);
-        if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
+        location.href = `folder_view.php?folder_id=${encodeURIComponent(refId)}`;
       } else if (type === 'TEXT') {
         const modal = document.getElementById(`editTextModal-${siId}`);
         if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
