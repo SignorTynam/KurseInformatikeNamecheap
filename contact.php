@@ -317,7 +317,7 @@ if (file_exists(__DIR__ . '/navbar_public.php')) {
             </p>
 
             <div class="mt-3 d-grid gap-2">
-              <a class="ki-btn primary" href="promotions_public.php"><i class="fa-solid fa-tag"></i> Shiko promocionet</a>
+              <a class="ki-btn primary" href="courses.php"><i class="fa-solid fa-tag"></i> Shiko promocionet</a>
               <a class="ki-btn" href="courses.php"><i class="fa-solid fa-book"></i> Shiko kurset</a>
               <a class="ki-btn" href="events.php"><i class="fa-regular fa-calendar-days"></i> Shiko eventet</a>
             </div>
@@ -503,7 +503,7 @@ if (file_exists(__DIR__ . '/navbar_public.php')) {
                   E diel: mbyllur
                 </div>
                 <div class="mt-2 d-flex gap-2 flex-wrap">
-                  <a class="ki-btn" href="promotions_public.php"><i class="fa-solid fa-tag"></i> Promocione</a>
+                  <a class="ki-btn" href="courses.php"><i class="fa-solid fa-tag"></i> Promocione</a>
                   <a class="ki-btn" href="courses.php"><i class="fa-solid fa-book"></i> Kurse</a>
                 </div>
               </div>

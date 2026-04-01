@@ -232,7 +232,7 @@
                 <i class="fa-regular fa-envelope me-1"></i> Dërgo mesazh
               </a>
               <a class="btn btn-sm"
-                 href="signup.php"
+                 href="virtuale/signup.php"
                  style="border-radius:14px;font-weight:900;background:linear-gradient(135deg, var(--ki-secondary), #ffd36a);border:1px solid rgba(240,179,35,.55);color:#111827;">
                 <i class="fa-solid fa-user-plus me-1"></i> Regjistrohu
               </a>

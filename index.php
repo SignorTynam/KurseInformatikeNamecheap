@@ -832,7 +832,7 @@ $chips = [
           </ul>
 
           <div class="d-flex gap-2 flex-wrap mt-3">
-            <a href="signup.php" class="ki-btn primary"><i class="fa-solid fa-user-plus"></i> Filloj tani</a>
+            <a href="virtuale/signup.php" class="ki-btn primary"><i class="fa-solid fa-user-plus"></i> Filloj tani</a>
             <a href="courses.php" class="ki-btn ghost"><i class="fa-solid fa-layer-group"></i> Shiko kurset</a>
           </div>
         </div>
@@ -929,7 +929,7 @@ $chips = [
             </div>
           </div>
           <div class="d-flex gap-2 flex-wrap">
-            <a href="signup.php" class="ki-btn primary"><i class="fa-solid fa-user-plus"></i> Regjistrohu</a>
+            <a href="virtuale/signup.php" class="ki-btn primary"><i class="fa-solid fa-user-plus"></i> Regjistrohu</a>
             <a href="courses.php" class="ki-btn ghost"><i class="fa-solid fa-layer-group"></i> Shiko kurset</a>
           </div>
         </div>
@@ -946,7 +946,7 @@ $chips = [
       </div>
 
       <div class="ki-block pad ki-reveal" style="transition-delay:.06s; margin-top: 14px;">
-        <form action="subscribe.php" method="post" class="row g-2 align-items-center">
+        <form action="virtuale/signup.php" method="get" class="row g-2 align-items-center">
           <div class="col-12 col-lg-8">
             <div class="input-group" style="border-radius:18px; overflow:hidden; border:1px solid rgba(15,23,42,.12); background: rgba(255,255,255,.18);">
               <span class="input-group-text" style="border:0;background:transparent;color:rgba(11,18,32,.65);"><i class="fa-regular fa-paper-plane"></i></span>

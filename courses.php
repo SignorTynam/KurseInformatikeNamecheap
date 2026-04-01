@@ -1,5 +1,5 @@
 <?php
-// promotions_public.php — Revamp KI v2 (match index.php)
+// courses.php — Revamp KI v2 (match index.php)
 // - Kategoritë = LABEL-at e promocioneve
 // - Link: promotion_details.php?id=...
 declare(strict_types=1);
@@ -724,7 +724,7 @@ if (file_exists(__DIR__ . '/navbar_public.php')) {
                 <i class="fa-solid fa-sliders"></i> Filtra
               </button>
 
-              <a class="ki-btn" href="promotions_public.php">
+              <a class="ki-btn" href="courses.php">
                 <i class="fa-solid fa-eraser"></i> Reset
               </a>
             </div>
@@ -799,7 +799,7 @@ if (file_exists(__DIR__ . '/navbar_public.php')) {
           <i class="fa-regular fa-face-meh-blank me-1"></i>
           Nuk u gjet asnjë promocion me këta filtra.
           <div class="mt-3">
-            <a class="ki-btn" href="promotions_public.php"><i class="fa-solid fa-eraser"></i> Reset filtrat</a>
+            <a class="ki-btn" href="courses.php"><i class="fa-solid fa-eraser"></i> Reset filtrat</a>
           </div>
         </div>
       <?php else: ?>
@@ -951,7 +951,7 @@ if (file_exists(__DIR__ . '/navbar_public.php')) {
 
       <div class="d-grid gap-2 mt-2">
         <button class="ki-btn primary" type="submit"><i class="fa-solid fa-check"></i> Apliko</button>
-        <a class="ki-btn" href="promotions_public.php"><i class="fa-solid fa-eraser"></i> Reset</a>
+        <a class="ki-btn" href="courses.php"><i class="fa-solid fa-eraser"></i> Reset</a>
       </div>
 
       <div class="mt-3" style="color: rgba(11,18,32,.68); font-weight:800;">
