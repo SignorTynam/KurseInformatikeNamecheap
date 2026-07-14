@@ -397,7 +397,7 @@ $URL_ROOT = rtrim($URL_ROOT, '/');
         </div>
 
         <div class="d-none d-lg-flex gap-2">
-          <a class="ki-btn ghost" href="/"><i class="fa-solid fa-house"></i> Kryefaqja</a>
+          <a class="ki-btn ghost" href="<?= h($URL_ROOT) ?>/index.php"><i class="fa-solid fa-house"></i> Kryefaqja</a>
           <a class="ki-btn dark" href="login.php"><i class="fa-solid fa-right-to-bracket"></i> Hyr</a>
         </div>
       </div>
@@ -453,8 +453,8 @@ $URL_ROOT = rtrim($URL_ROOT, '/');
           </div>
 
           <div class="d-flex gap-2 flex-wrap mt-3">
-            <a class="ki-btn primary" href="promotions_public.php"><i class="fa-solid fa-tag"></i> Shiko promocionet</a>
-            <a class="ki-btn ghost" href="contact.php"><i class="fa-solid fa-envelope"></i> Kontakto</a>
+            <a class="ki-btn primary" href="<?= h($URL_ROOT) ?>/courses.php"><i class="fa-solid fa-tag"></i> Shiko promocionet</a>
+            <a class="ki-btn ghost" href="<?= h($URL_ROOT) ?>/contact.php"><i class="fa-solid fa-envelope"></i> Kontakto</a>
           </div>
         </div>
 
