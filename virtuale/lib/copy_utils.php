@@ -8,6 +8,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/sections_utils.php';
 require_once __DIR__ . '/lesson_videos.php';
+require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 if (!function_exists('table_has_column')) {
   function table_has_column(PDO $pdo, string $table, string $column): bool {
@@ -67,49 +68,15 @@ function _tx_rollback_if_started(PDO $pdo, bool $started): void {
 /* ===================== Deep-copy helpers ===================== */
 
 function copy_lesson_deep(PDO $pdo, int $sourceLessonId, int $targetCourseId, ?int $targetSectionId): int {
-  $q = $pdo->prepare("SELECT * FROM lessons WHERE id = ?");
-  $q->execute([$sourceLessonId]);
-  $src = $q->fetch(PDO::FETCH_ASSOC);
-  if (!$src) throw new RuntimeException('Leksioni burim nuk u gjet.');
-
-  $ins = $pdo->prepare("
-    INSERT INTO lessons (course_id, section_id, title, description, URL, category, notebook_path, uploaded_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-  ");
-  $ins->execute([
-    $targetCourseId,
-    $targetSectionId,
-    $src['title'],
-    $src['description'],
-    $src['URL'],
-    $src['category'],
-    $src['notebook_path'],
-  ]);
-  $newLessonId = (int)$pdo->lastInsertId();
-
-  // lesson_files (nëse ekziston)
-  if (table_exists($pdo, 'lesson_files')) {
-    $qf = $pdo->prepare("SELECT * FROM lesson_files WHERE lesson_id = ?");
-    $qf->execute([$sourceLessonId]);
-    $insf = $pdo->prepare("INSERT INTO lesson_files (lesson_id, file_path, file_type, uploaded_at) VALUES (?,?,?,NOW())");
-    while ($f = $qf->fetch(PDO::FETCH_ASSOC)) {
-      $insf->execute([$newLessonId, $f['file_path'], $f['file_type']]);
-    }
-  }
-
-  // lesson_images (nëse ekziston)
-  if (table_exists($pdo, 'lesson_images')) {
-    $qi = $pdo->prepare("SELECT * FROM lesson_images WHERE lesson_id=? ORDER BY position ASC, id ASC");
-    $qi->execute([$sourceLessonId]);
-    $insi = $pdo->prepare("INSERT INTO lesson_images (lesson_id, file_path, alt_text, position, created_at) VALUES (?,?,?,?,NOW())");
-    while ($img = $qi->fetch(PDO::FETCH_ASSOC)) {
-      $insi->execute([$newLessonId, $img['file_path'], $img['alt_text'], (int)$img['position']]);
-    }
-  }
-
-  lv_copy_lesson_videos($pdo, $sourceLessonId, $newLessonId);
-
-  return $newLessonId;
+  $service = new \KurseInformatike\Lessons\Application\CopyLesson(
+    $pdo,
+    new \KurseInformatike\Lessons\Infrastructure\PdoLessonRepository($pdo),
+    new \KurseInformatike\Lessons\Infrastructure\PdoLessonBlockRepository($pdo),
+    new \KurseInformatike\Lessons\Infrastructure\PdoLessonMediaRepository($pdo),
+    new \KurseInformatike\Shared\Storage\FileStorage(dirname(__DIR__) . '/uploads/lesson-media', 'uploads/lesson-media'),
+    dirname(__DIR__)
+  );
+  return $service->handle($sourceLessonId, $targetCourseId, $targetSectionId, (int)($_SESSION['user']['id'] ?? 0), false);
 }
 
 function copy_assignment_deep(PDO $pdo, int $sourceAssignmentId, int $targetCourseId, ?int $targetSectionId): int {

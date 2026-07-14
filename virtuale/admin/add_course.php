@@ -3,6 +3,7 @@ declare(strict_types=1);
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 require_once __DIR__ . '/../lib/database.php';
 require_once __DIR__ . '/../lib/lib_access_code.php';
+require_once __DIR__ . '/../lib/copy_utils.php';
 
 /* -------------------- RBAC -------------------- */
 if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'] ?? '', ['Administrator','Instruktor'], true)) {
@@ -204,38 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $lessonsToCopy = $stmtLessons->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                 foreach ($lessonsToCopy as $lesson) {
-                    $stmtInsL = $pdo->prepare("
-                        INSERT INTO lessons (course_id, title, description, URL, category, hidden, uploaded_at)
-                        VALUES (?,?,?,?,?,1,NOW())
-                    ");
-                    $stmtInsL->execute([
-                        $new_course_id,
-                        $lesson['title'],
-                        $lesson['description'],
-                        $lesson['URL'],
-                        $lesson['category']
-                    ]);
-                    $new_lesson_id = (int)$pdo->lastInsertId();
+                    $new_lesson_id = copy_lesson_deep($pdo, (int)$lesson['id'], $new_course_id, null);
                     $lessonIdMap[(int)$lesson['id']] = $new_lesson_id;
-
-                    // Kopjo skedarët e leksionit
-                    $stmtFiles = $pdo->prepare("SELECT * FROM lesson_files WHERE lesson_id = ?");
-                    $stmtFiles->execute([$lesson['id']]);
-                    $filesToCopy = $stmtFiles->fetchAll(PDO::FETCH_ASSOC) ?: [];
-
-                    foreach ($filesToCopy as $lf) {
-                        $oldRel = (string)$lf['file_path'];
-                        $oldAbs = is_file($oldRel) ? $oldRel : (__DIR__ . '/' . ltrim($oldRel, '/'));
-                        if (is_file($oldAbs)) {
-                            $newName = time() . '_' . bin2hex(random_bytes(4)) . '_' . basename($oldAbs);
-                            $newRel  = 'uploads/lessons/' . $newName;
-                            $newAbs  = $upload_lessons_dir . '/' . $newName;
-                            if (@copy($oldAbs, $newAbs)) {
-                                $stmtCopyFile = $pdo->prepare("INSERT INTO lesson_files (lesson_id, file_path, file_type) VALUES (?,?,?)");
-                                $stmtCopyFile->execute([$new_lesson_id, $newRel, $lf['file_type']]);
-                            }
-                        }
-                    }
                 }
 
                 // 3) Kopjo assignments

@@ -18,6 +18,13 @@ header('Content-Type: application/json');
 
 $ROOT = dirname(__DIR__);
 require_once $ROOT . '/lib/database.php';
+require_once dirname($ROOT) . '/vendor/autoload.php';
+$lessonDeletionService = new \KurseInformatike\Lessons\Application\DeleteLesson(
+  $pdo,
+  new \KurseInformatike\Shared\Storage\FileStorage($ROOT . '/uploads/lesson-media', 'uploads/lesson-media'),
+  $ROOT
+);
+$lessonDeletionPlans = [];
 
 if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'] ?? '', ['Administrator','Instruktor'], true)) {
   echo json_encode(['ok'=>false,'error'=>'Unauthenticated']); exit;
@@ -61,6 +68,7 @@ try {
  * Fshin një seksion dhe të gjitha materialet e lidhura me të.
  */
 function delete_section_and_items(PDO $pdo, int $course_id, int $section_id): void {
+  global $lessonDeletionService, $lessonDeletionPlans;
   // Gjej materialet e seksionit
   $q = $pdo->prepare("
     SELECT id, item_type, item_ref_id
@@ -81,9 +89,7 @@ function delete_section_and_items(PDO $pdo, int $course_id, int $section_id): vo
         $pdo->prepare("DELETE FROM section_items WHERE id=?")->execute([$si_id]);
 
       } elseif ($typ === 'LESSON') {
-        $pdo->prepare("DELETE FROM lesson_files WHERE lesson_id=?")->execute([$ref]);
-        $pdo->prepare("DELETE FROM section_items WHERE id=?")->execute([$si_id]);
-        $pdo->prepare("DELETE FROM lessons WHERE id=? AND course_id=?")->execute([$ref, $course_id]);
+        $lessonDeletionPlans[] = $lessonDeletionService->deleteRecords($ref);
 
       } elseif ($typ === 'ASSIGNMENT') {
         $pdo->prepare("DELETE FROM assignments_submitted WHERE assignment_id=?")->execute([$ref]);
@@ -164,6 +170,8 @@ try {
   }
 
   $pdo->commit();
+  foreach ($lessonDeletionPlans as $plan) $lessonDeletionService->cleanupFiles($plan);
+  $lessonDeletionPlans = [];
   echo json_encode(['ok'=>true]);
 } catch (Throwable $e) {
   if ($pdo->inTransaction()) {

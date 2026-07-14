@@ -5,7 +5,7 @@ session_start();
 header('Content-Type: application/json; charset=UTF-8');
 
 require_once __DIR__ . '/lib/database.php';
-require_once __DIR__ . '/lib/lesson_videos.php';
+require_once __DIR__ . '/lib/copy_utils.php';
 
 /* RBAC */
 if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'] ?? '', ['Administrator','Instruktor'], true)) {
@@ -108,43 +108,11 @@ try {
   $qLess = $pdo->prepare("SELECT * FROM lessons WHERE course_id = ? ORDER BY id ASC");
   $qLess->execute([$srcCourseId]);
 
-  $insLess = $pdo->prepare("
-    INSERT INTO lessons (course_id, section_id, title, description, URL, category, notebook_path, uploaded_at, updated_at)
-    VALUES (:course_id, :section_id, :title, :descr, :url, :cat, :nb, NOW(), NOW())
-  ");
-
   while ($l = $qLess->fetch(PDO::FETCH_ASSOC)) {
     $oldSection = $l['section_id'] ? (int)$l['section_id'] : null;
     $newSection = $oldSection && isset($sectionMap[$oldSection]) ? $sectionMap[$oldSection] : null;
-
-    $insLess->execute([
-      ':course_id'  => $newCourseId,
-      ':section_id' => $newSection,
-      ':title'      => $l['title'],
-      ':descr'      => $l['description'] ?? null,
-      ':url'        => $l['URL'] ?? null,
-      ':cat'        => $l['category'] ?? 'LEKSION', // mos prek 'LAB' nëse ka
-      ':nb'         => $l['notebook_path'] ?? null,
-    ]);
-    $newLessonId = (int)$pdo->lastInsertId();
+    $newLessonId = copy_lesson_deep($pdo, (int)$l['id'], $newCourseId, $newSection);
     $lessonMap[(int)$l['id']] = $newLessonId;
-
-    /* lesson_files */
-    $lfSel = $pdo->prepare("SELECT * FROM lesson_files WHERE lesson_id=? ORDER BY id ASC");
-    $lfSel->execute([(int)$l['id']]);
-    $lfIns = $pdo->prepare("
-      INSERT INTO lesson_files (lesson_id, file_path, file_type, uploaded_at)
-      VALUES (:lesson_id, :file_path, :file_type, NOW())
-    ");
-    while ($lf = $lfSel->fetch(PDO::FETCH_ASSOC)) {
-      $lfIns->execute([
-        ':lesson_id' => $newLessonId,
-        ':file_path' => $lf['file_path'],
-        ':file_type' => $lf['file_type'] ?? null,
-      ]);
-    }
-
-    lv_copy_lesson_videos($pdo, (int)$l['id'], $newLessonId);
   }
 
   /* =========================
