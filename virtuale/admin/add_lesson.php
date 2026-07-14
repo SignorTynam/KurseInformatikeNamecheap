@@ -7,6 +7,10 @@ use KurseInformatike\Lessons\Application\DraftToken;
 use KurseInformatike\Lessons\Application\LessonBlockValidator;
 use KurseInformatike\Lessons\Application\LessonFormData;
 use KurseInformatike\Lessons\Application\LessonValidationException;
+use KurseInformatike\Lessons\Application\PrepareLessonDraftCopy;
+use KurseInformatike\Lessons\Application\CopyLesson;
+use KurseInformatike\Lessons\Application\UpdateLesson;
+use KurseInformatike\Lessons\Application\DeleteLesson;
 use KurseInformatike\Lessons\Infrastructure\PdoLessonBlockRepository;
 use KurseInformatike\Lessons\Infrastructure\PdoLessonMediaRepository;
 use KurseInformatike\Lessons\Infrastructure\PdoLessonRepository;
@@ -30,6 +34,24 @@ $values = [
     'video_urls_text' => (string) ($_POST['video_urls'] ?? ''), 'notebook_path' => (string) ($_POST['notebook_path'] ?? ''),
 ];
 $initialBlocks = [['type' => 'paragraph', 'data' => ['text' => '']]];
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $copyLessonId > 0) {
+    $app['authorization']->requireLessonManager($copyLessonId);
+    $sourceRepository = new PdoLessonRepository($app['pdo']);
+    $source = $sourceRepository->find($copyLessonId);
+    if (!$source) throw new DomainException('Leksioni për kopjim nuk u gjet.');
+    $values = [
+        'title' => (string)$source['title'] . ' (Kopje)', 'category' => (string)$source['category'],
+        'section_id' => (int)($_GET['section_id'] ?? 0), 'url' => (string)($source['URL'] ?? ''),
+        'video_urls_text' => implode("\n", $formData->videos($copyLessonId)), 'notebook_path' => (string)($source['notebook_path'] ?? ''),
+    ];
+    if (($source['content_format'] ?? 'legacy_markdown') === 'blocks_v1') {
+        $mediaRepository = new PdoLessonMediaRepository($app['pdo']);
+        $initialBlocks = (new PrepareLessonDraftCopy($app['pdo'], new PdoLessonBlockRepository($app['pdo']), $mediaRepository, $app['lesson_media_storage']))
+            ->handle($copyLessonId, (int)$user['id'], $draftToken)->toEditorData();
+    } else {
+        $initialBlocks = [['type' => 'paragraph', 'data' => ['text' => nl2br(htmlspecialchars((string)($source['description'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'))]]];
+    }
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         Csrf::requireValid();
@@ -37,14 +59,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $media = new PdoLessonMediaRepository($app['pdo']);
         $validator = new LessonBlockValidator(new HtmlSanitizer(), static fn (int $id): bool => $media->isAvailable($id, (int) $user['id'], $draftToken, null));
         $blocks = $validator->validateJson((string) ($_POST['blocks_json'] ?? ''));
-        $service = new CreateLesson(
-            $app['pdo'], new PdoLessonRepository($app['pdo']), new PdoLessonBlockRepository($app['pdo']),
-            $media, new HtmlSanitizer(), $app['lesson_attachment_storage']
-        );
-        $lessonId = $service->handle([
-            ...$values, 'course_id' => $courseId,
-            'video_urls' => preg_split('/\R/u', $values['video_urls_text']) ?: [],
-        ], $blocks, (int) $user['id'], $draftToken, $_FILES['lesson_file'] ?? []);
+        $normalizedInput = [...$values, 'course_id' => $courseId, 'video_urls' => preg_split('/\R/u', $values['video_urls_text']) ?: []];
+        $lessonRepository = new PdoLessonRepository($app['pdo']);
+        $blockRepository = new PdoLessonBlockRepository($app['pdo']);
+        if ($copyLessonId > 0) {
+            $lessonId = (new CopyLesson($app['pdo'], $lessonRepository, $blockRepository, $media, $app['lesson_media_storage'], dirname(__DIR__)))
+                ->handle($copyLessonId, $courseId, (int)$values['section_id'] ?: null, (int)$user['id']);
+            try {
+                (new UpdateLesson($app['pdo'], $lessonRepository, $blockRepository, $media, new HtmlSanitizer(), $app['lesson_media_storage'], $app['lesson_attachment_storage']))
+                    ->handle($lessonId, $normalizedInput, $blocks, (int)$user['id'], $draftToken, $_FILES['lesson_file'] ?? []);
+            } catch (Throwable $exception) {
+                (new DeleteLesson($app['pdo'], $app['lesson_media_storage'], dirname(__DIR__)))->handle($lessonId);
+                throw $exception;
+            }
+        } else {
+            $service = new CreateLesson($app['pdo'], $lessonRepository, $blockRepository, $media, new HtmlSanitizer(), $app['lesson_attachment_storage']);
+            $lessonId = $service->handle($normalizedInput, $blocks, (int)$user['id'], $draftToken, $_FILES['lesson_file'] ?? []);
+        }
         $_SESSION['flash'] = ['msg' => 'Leksioni u ruajt me sukses.', 'type' => 'success'];
         Response::redirect('../lesson_details.php?lesson_id=' . $lessonId);
     } catch (LessonValidationException $exception) {
