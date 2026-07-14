@@ -1,0 +1,33 @@
+{
+  "name": "signortynam/kurse-informatike",
+  "description": "Kurse Informatike modular monolith",
+  "license": "proprietary",
+  "type": "project",
+  "require": {
+    "php": ">=8.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "KurseInformatike\\": "virtuale/src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "KurseInformatike\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "8.3.0"
+    },
+    "platform-check": false,
+    "sort-packages": true
+  },
+  "scripts": {
+    "test": "phpunit",
+    "lint": "php scripts/lint-php.php"
+  }
+}
