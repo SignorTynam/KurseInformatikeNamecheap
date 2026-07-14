@@ -1,0 +1,2 @@
+<?php $language = preg_replace('/[^a-z0-9_-]/i', '', (string) ($data['language'] ?? 'text')) ?: 'text'; ?>
+<div class="km-block km-block-code"><div class="km-code-toolbar"><span><?= htmlspecialchars($language, ENT_QUOTES, 'UTF-8') ?></span><button type="button" class="km-copy-code" aria-label="Kopjo kodin">Kopjo</button></div><pre><code class="language-<?= htmlspecialchars($language, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars((string) ($data['code'] ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></code></pre></div>
