@@ -2,7 +2,7 @@
   "name": "kurse-informatike-assets",
   "private": true,
   "scripts": {
-    "build:lesson-editor": "esbuild virtuale/assets/src/lesson-editor.js --bundle --minify --target=es2020 --outfile=virtuale/assets/dist/lesson-editor.js",
+    "build:lesson-editor": "esbuild virtuale/assets/src/lesson-editor.js --bundle --minify --legal-comments=external --target=es2020 --outfile=virtuale/assets/dist/lesson-editor.js && node scripts/trim-generated-whitespace.mjs virtuale/assets/dist/lesson-editor.js.LEGAL.txt",
     "build": "npm run build:lesson-editor"
   },
   "dependencies": {

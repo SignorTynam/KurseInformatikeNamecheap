@@ -1,7 +1,7 @@
 # Audit del modulo Lessons
 
-Data audit: 14 luglio 2026  
-Branch di partenza: `main`  
+Data audit: 14 luglio 2026
+Branch di partenza: `main`
 Commit verificato dopo `git fetch origin --prune`: `ed3e889fec650fd62a8645d84336a02caf3d59aa`
 
 ## Ambiente verificato
