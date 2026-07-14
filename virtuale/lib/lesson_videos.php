@@ -19,29 +19,7 @@ function lv_table_exists(PDO $pdo, string $table): bool {
 }
 
 function lv_ensure_schema(PDO $pdo): bool {
-    if (lv_table_exists($pdo, 'lesson_videos')) return true;
-
-    $sql = "
-      CREATE TABLE IF NOT EXISTS lesson_videos (
-        id INT(11) NOT NULL AUTO_INCREMENT,
-        lesson_id INT(11) NOT NULL,
-        video_url VARCHAR(1024) NOT NULL,
-        title VARCHAR(255) DEFAULT NULL,
-        position INT(11) NOT NULL DEFAULT 1,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        KEY idx_lv_lesson (lesson_id),
-        KEY idx_lv_lesson_pos (lesson_id, position)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
-    ";
-
-    try {
-        $pdo->exec($sql);
-    } catch (Throwable $e) {
-        return false;
-    }
-
+    // Schema changes belong to database/migrations and never to an HTTP request.
     return lv_table_exists($pdo, 'lesson_videos');
 }
 

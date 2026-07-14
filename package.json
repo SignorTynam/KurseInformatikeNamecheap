@@ -1,0 +1,19 @@
+{
+  "name": "kurse-informatike-assets",
+  "private": true,
+  "scripts": {
+    "build:lesson-editor": "esbuild virtuale/assets/src/lesson-editor.js --bundle --minify --target=es2020 --outfile=virtuale/assets/dist/lesson-editor.js",
+    "build": "npm run build:lesson-editor"
+  },
+  "dependencies": {
+    "@editorjs/delimiter": "1.4.2",
+    "@editorjs/editorjs": "2.31.6",
+    "@editorjs/header": "2.8.9",
+    "@editorjs/list": "2.0.9",
+    "@editorjs/quote": "2.7.6",
+    "@editorjs/table": "2.4.5"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1"
+  }
+}

@@ -1,7 +1,14 @@
 <?php
 declare(strict_types=1);
-session_start();
-require_once __DIR__ . '/lib/database.php';
+
+use KurseInformatike\Lessons\Application\LessonBlockValidator;
+use KurseInformatike\Lessons\Infrastructure\PdoLessonBlockRepository;
+use KurseInformatike\Lessons\Presentation\LessonBlockRenderer;
+use KurseInformatike\Shared\Http\Csrf;
+use KurseInformatike\Shared\Security\HtmlSanitizer;
+
+$app = require __DIR__ . '/bootstrap/app.php';
+$pdo = $app['pdo'];
 require_once __DIR__ . '/lib/Parsedown.php';
 require_once __DIR__ . '/lib/lesson_videos.php';
 
@@ -11,16 +18,13 @@ function h(?string $s): string {
 }
 
 function ensureCsrf(): void {
-  if (empty($_POST['csrf']) || empty($_SESSION['csrf']) || !hash_equals($_SESSION['csrf'], (string)$_POST['csrf'])) {
+  if (!Csrf::isValid()) {
     http_response_code(403);
     exit('CSRF verifikimi dështoi.');
   }
 }
 function csrf_token(): string {
-  if (empty($_SESSION['csrf'])) {
-    $_SESSION['csrf'] = bin2hex(random_bytes(32));
-  }
-  return $_SESSION['csrf'];
+  return Csrf::token();
 }
 function flash_set(string $type, string $msg): void {
   $_SESSION["flash_$type"] = $msg;
@@ -160,16 +164,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
   exit;
 }
 
-/* ------------------------- Parsedown (safe mode) ----------------------- */
-$Parsedown = new Parsedown();
-if (method_exists($Parsedown, 'setSafeMode')) {
-  $Parsedown->setSafeMode(true);
-}
-$rawDescription   = (string)($lesson['description'] ?? '');
-$hasDescription   = trim($rawDescription) !== '';
-$descriptionHtml  = $hasDescription ? $Parsedown->text($rawDescription) : '';
+/* --------------------- Structured content + legacy fallback ----------- */
+$contentFormat = (string)($lesson['content_format'] ?? 'legacy_markdown');
+$rawDescription = (string)($lesson['description'] ?? '');
+$descriptionHtml = '';
+$lessonOutline = [];
+$wordCount = 0;
+$readMinutes = 0;
 
-if ($hasDescription && $descriptionHtml !== '') {
+if ($contentFormat === 'blocks_v1') {
+  try {
+    $sanitizer = new HtmlSanitizer();
+    $storedBlocks = (new PdoLessonBlockRepository($pdo))->getForLesson($lesson_id);
+    $validatedBlocks = (new LessonBlockValidator($sanitizer))->validate($storedBlocks->toEditorData());
+    $renderer = new LessonBlockRenderer($sanitizer);
+    $descriptionHtml = $renderer->render($validatedBlocks);
+    $lessonOutline = $renderer->outline($validatedBlocks);
+    $wordCount = $validatedBlocks->wordCount($sanitizer);
+    $readMinutes = $validatedBlocks->readingMinutes($sanitizer);
+  } catch (Throwable $e) {
+    error_log('Structured lesson rendering failed for lesson ' . $lesson_id . ': ' . $e->getMessage());
+  }
+} else {
+  $Parsedown = new Parsedown();
+  if (method_exists($Parsedown, 'setSafeMode')) {
+    $Parsedown->setSafeMode(true);
+  }
+  $descriptionHtml = trim($rawDescription) !== '' ? $Parsedown->text($rawDescription) : '';
+}
+$hasDescription = trim($descriptionHtml) !== '';
+
+if ($contentFormat === 'legacy_markdown' && $hasDescription) {
     // bazë: p.sh. "" ose "/KurseInformatika/virtuale"
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
     if ($basePath === '/') {
@@ -191,9 +216,12 @@ if ($hasDescription && $descriptionHtml !== '') {
     );
 }
 
-$descriptionPlain = trim(preg_replace('/[#>*_\-\[\]\(\)`]+/u', ' ', $rawDescription));
-$wordCount        = $descriptionPlain !== '' ? str_word_count($descriptionPlain) : 0;
-$readMinutes      = $wordCount > 0 ? max(1, (int)ceil($wordCount / 180)) : 0;
+if ($contentFormat === 'legacy_markdown') {
+  $descriptionPlain = trim((string)preg_replace('/[#>*_\-\[\]\(\)`]+/u', ' ', $rawDescription));
+  preg_match_all('/[\p{L}\p{N}]+/u', $descriptionPlain, $wordMatches);
+  $wordCount = count($wordMatches[0]);
+  $readMinutes = $wordCount > 0 ? max(1, (int)ceil($wordCount / 180)) : 0;
+}
 
 /* ------------------------------ Media helper --------------------------- */
 function getEmbedUrl(string $url): array {
@@ -787,9 +815,17 @@ $hasNotebook    = !empty($lesson['notebook_path']);
               </div>
               <div class="card-body p-0">
                 <nav id="lesson-outline" class="km-lesson-lesson-outline" aria-label="Përmbajtja e leksionit">
-                  <div class="px-3 py-2 small text-muted">
-                    Ky leksion nuk ka ende tituj kryesorë.
-                  </div>
+                  <?php if ($contentFormat === 'blocks_v1' && $lessonOutline !== []): ?>
+                    <ul class="km-lesson-lesson-outline-list list-unstyled mb-0">
+                      <?php foreach ($lessonOutline as $item): ?>
+                        <li class="km-lesson-lesson-outline-item toc-level-<?= (int)$item['level'] === 2 ? '1' : '2' ?>">
+                          <a class="km-lesson-lesson-outline-link" href="#<?= h($item['anchor']) ?>"><?= h($item['text']) ?></a>
+                        </li>
+                      <?php endforeach; ?>
+                    </ul>
+                  <?php else: ?>
+                    <div class="px-3 py-2 small text-muted">Ky leksion nuk ka ende tituj kryesorë.</div>
+                  <?php endif; ?>
                 </nav>
               </div>
             </div>
@@ -918,7 +954,7 @@ $hasNotebook    = !empty($lesson['notebook_path']);
                       </div>
                     <?php else: ?>
                       <form method="POST" class="mb-2">
-                        <input type="hidden" name="csrf" value="<?= h(csrf_token()) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= h(csrf_token()) ?>">
                         <input type="hidden" name="action" value="mark_read">
                         <button type="submit" class="btn btn-primary btn-sm rounded-pill km-lesson-mark-btn">
                           <i class="fa fa-check me-1"></i> Shëno si lexuar
@@ -938,13 +974,16 @@ $hasNotebook    = !empty($lesson['notebook_path']);
                             <i class="fa fa-edit me-2"></i> Modifiko leksionin
                           </a>
                         </li>
+                        <?php if ($contentFormat === 'legacy_markdown'): ?>
+                          <li><a class="dropdown-item" href="admin/convert_lesson.php?lesson_id=<?= (int)$lesson_id ?>"><i class="fa fa-wand-magic-sparkles me-2"></i> Konverto në editorin e ri</a></li>
+                        <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                           <form method="POST"
                                 action="admin/delete_lesson.php"
                                 onsubmit="return confirm('Fshi përfundimisht këtë leksion?');"
                                 class="px-3 py-1">
-                            <input type="hidden" name="csrf" value="<?= h(csrf_token()) ?>">
+                            <input type="hidden" name="csrf_token" value="<?= h(csrf_token()) ?>">
                             <input type="hidden" name="course_id" value="<?= (int)$course_id ?>">
                             <input type="hidden" name="lesson_id" value="<?= (int)$lesson_id ?>">
                             <button class="btn btn-sm btn-danger w-100">
@@ -1230,6 +1269,7 @@ $hasNotebook    = !empty($lesson['notebook_path']);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 <script>
+window.KM_LESSON_BLOCKS_V1 = <?= $contentFormat === 'blocks_v1' ? 'true' : 'false' ?>;
 document.addEventListener('DOMContentLoaded', () => {
   const proseRoot = document.getElementById('lesson-prose');
 
@@ -1274,6 +1314,21 @@ document.addEventListener('DOMContentLoaded', () => {
     proseRoot.querySelectorAll('pre').forEach(pre => {
       const code = pre.querySelector('code');
       if (!code) return;
+
+      const structuredWrapper = pre.closest('.km-block-code');
+      if (structuredWrapper) {
+        const structuredCopy = structuredWrapper.querySelector('.km-copy-code');
+        structuredCopy?.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(code.innerText);
+            structuredCopy.textContent = 'U kopjua';
+            setTimeout(() => { structuredCopy.textContent = 'Kopjo'; }, 1200);
+          } catch {
+            structuredCopy.textContent = 'Gabim';
+          }
+        });
+        return;
+      }
 
       let classLang = [...code.classList].find(c => c.startsWith('language-')) || '';
       classLang = classLang.replace('language-', '');
@@ -1361,7 +1416,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       /* -------------------- Outline i leksionit (TOC) -------------------- */
     const outlineRoot = document.getElementById('lesson-outline');
-    if (outlineRoot && proseRoot) {
+    if (!window.KM_LESSON_BLOCKS_V1 && outlineRoot && proseRoot) {
       const allHeadings = Array.from(
         proseRoot.querySelectorAll('h1, h2, h3, h4, h5, h6')
       );
