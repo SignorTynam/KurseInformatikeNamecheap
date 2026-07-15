@@ -15,6 +15,13 @@ foreach (['/threads', '/quizzes', '/sections'] as $suffix) {
 if ($BASE_URL === '') $BASE_URL = '/';
 
 require_once $ROOT . '/lib/database.php';
+require_once dirname($ROOT) . '/vendor/autoload.php';
+$lessonDeletionService = new \KurseInformatike\Lessons\Application\DeleteLesson(
+  $pdo,
+  new \KurseInformatike\Shared\Storage\FileStorage($ROOT . '/uploads/lesson-media', 'uploads/lesson-media'),
+  $ROOT
+);
+$lessonDeletionPlans = [];
 
 /* ---------------- RBAC ---------------- */
 if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'] ?? '', ['Administrator','Instruktor'], true)) {
@@ -113,6 +120,7 @@ function position_exists(PDO $pdo, int $course_id, int $position, ?int $exclude_
  * (Përmirësim: fshin edhe assignments_files).
  */
 function delete_section_and_items(PDO $pdo, int $course_id, int $section_id): void {
+  global $lessonDeletionService, $lessonDeletionPlans;
   $q = $pdo->prepare("
     SELECT id, item_type, item_ref_id
     FROM section_items
@@ -132,11 +140,7 @@ function delete_section_and_items(PDO $pdo, int $course_id, int $section_id): vo
     }
 
     if ($typ === 'LESSON') {
-      // cleanup files (MyISAM)
-      try { $pdo->prepare("DELETE FROM lesson_files WHERE lesson_id=?")->execute([$ref]); } catch (Throwable $__) {}
-      // heq lidhjen + fshi leksionin
-      $pdo->prepare("DELETE FROM section_items WHERE id=?")->execute([$si_id]);
-      $pdo->prepare("DELETE FROM lessons WHERE id=? AND course_id=?")->execute([$ref, $course_id]);
+      $lessonDeletionPlans[] = $lessonDeletionService->deleteRecords($ref);
       continue;
     }
 
@@ -250,6 +254,8 @@ try {
       $pdo->beginTransaction();
       delete_section_and_items($pdo, $course_id, $section_id);
       $pdo->commit();
+      foreach ($lessonDeletionPlans as $plan) $lessonDeletionService->cleanupFiles($plan);
+      $lessonDeletionPlans = [];
 
       redirect_sections($course_id, 'Seksioni u fshi bashkë me materialet e tij.');
     }

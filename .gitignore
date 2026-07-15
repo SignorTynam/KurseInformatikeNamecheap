@@ -6,3 +6,6 @@ events/
 database.php
 
 virtuale/uploads/*
+vendor/
+node_modules/
+.phpunit.cache/

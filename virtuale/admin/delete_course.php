@@ -19,10 +19,11 @@ function safe_unlink(?string $rel): void {
   if (!$rel) return;
   $rel = ltrim((string)$rel, '/');
   if ($rel === '') return;
-  $abs  = realpath(__DIR__ . '/' . $rel);
-  $root = realpath(__DIR__);
+  $virtualeRoot = dirname(__DIR__);
+  $abs  = realpath($virtualeRoot . '/' . $rel);
+  $root = realpath($virtualeRoot . '/uploads');
   if ($abs && $root && str_starts_with($abs, $root . DIRECTORY_SEPARATOR) && is_file($abs)) {
-    @unlink($abs);
+    if (!unlink($abs)) error_log('Could not delete course file: ' . $rel);
   }
 }
 
@@ -130,6 +131,11 @@ try {
   $stmtLI->execute([$course_id]);
   foreach ($stmtLI->fetchAll(PDO::FETCH_COLUMN) as $p) { if ($p) $files[] = (string)$p; }
 
+  // Media strutturati blocks_v1
+  $stmtLM = $pdo->prepare("SELECT lm.storage_path FROM lesson_media lm JOIN lessons l ON l.id=lm.lesson_id WHERE l.course_id=?");
+  $stmtLM->execute([$course_id]);
+  foreach ($stmtLM->fetchAll(PDO::FETCH_COLUMN) as $p) { if ($p) $files[] = (string)$p; }
+
   // Imazhet e pyetjeve të bankës (question_bank)
   $stmtQBI = $pdo->prepare("SELECT image_path FROM question_bank WHERE course_id = ? AND image_path IS NOT NULL");
   $stmtQBI->execute([$course_id]);
@@ -185,6 +191,8 @@ try {
   ")->execute([$course_id]);
 
   // — Materialet e leksioneve: video, imazhe, skedarë (pa FK CASCADE)
+  $pdo->prepare("DELETE lb FROM lesson_blocks lb JOIN lessons l ON l.id=lb.lesson_id WHERE l.course_id=?")->execute([$course_id]);
+  $pdo->prepare("DELETE lm FROM lesson_media lm JOIN lessons l ON l.id=lm.lesson_id WHERE l.course_id=?")->execute([$course_id]);
   $pdo->prepare("
     DELETE lv FROM lesson_videos lv
     JOIN lessons l ON l.id = lv.lesson_id

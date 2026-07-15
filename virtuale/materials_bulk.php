@@ -18,6 +18,13 @@ declare(strict_types=1);
 session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/lib/database.php';
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+$lessonDeletionService = new \KurseInformatike\Lessons\Application\DeleteLesson(
+  $pdo,
+  new \KurseInformatike\Shared\Storage\FileStorage(__DIR__ . '/uploads/lesson-media', 'uploads/lesson-media'),
+  __DIR__
+);
+$lessonDeletionPlans = [];
 
 function km_table_exists(PDO $pdo, string $table): bool {
   try {
@@ -133,24 +140,6 @@ try {
       WHERE course_id=? AND item_type=? AND item_ref_id=? AND id<>?
     ");
 
-    // Lessons cleanup
-    $delLesson      = $pdo->prepare("DELETE FROM lessons WHERE id=? AND course_id=?");
-    $delLessonFiles = $pdo->prepare("DELETE FROM lesson_files WHERE lesson_id=?");
-    // table e re në skemë (InnoDB + FK), por e fshijmë edhe manualisht për siguri
-    $hasLessonImages = km_table_exists($pdo, 'lesson_images');
-    $delLessonImages = $hasLessonImages
-      ? $pdo->prepare("DELETE FROM lesson_images WHERE lesson_id=?")
-      : null;
-    $delNotes       = $pdo->prepare("DELETE FROM notes WHERE lesson_id=?");
-    $delThreads     = $pdo->prepare("DELETE FROM threads WHERE course_id=? AND lesson_id=?");
-    $delRepliesByThreads = $pdo->prepare("
-      DELETE tr
-      FROM thread_replies tr
-      JOIN threads t ON t.id = tr.thread_id
-      WHERE t.course_id=? AND t.lesson_id=?
-    ");
-    $delReadsLesson = $pdo->prepare("DELETE FROM user_reads WHERE item_type='LESSON' AND item_id=?");
-
     // Assignments cleanup
     $delAssign      = $pdo->prepare("DELETE FROM assignments WHERE id=? AND course_id=?");
     $delAssignFiles = $pdo->prepare("DELETE FROM assignments_files WHERE assignment_id=?");
@@ -193,22 +182,7 @@ try {
 
       // 4) Përndryshe, fshi objektin + dependent data
       if ($typ === 'LESSON') {
-        // MyISAM tables: manual cleanup
-        $delLessonFiles->execute([$ref]);
-        if ($delLessonImages) {
-          try { $delLessonImages->execute([$ref]); } catch (Throwable $__){ /* ignore */ }
-        }
-        $delNotes->execute([$ref]);
-
-        // threads + replies (MyISAM)
-        try { $delRepliesByThreads->execute([$course_id, $ref]); } catch (Throwable $__){ /* ignore */ }
-        $delThreads->execute([$course_id, $ref]);
-
-        // user_reads (InnoDB)
-        $delReadsLesson->execute([$ref]);
-
-        // fshi lesson-in
-        $delLesson->execute([$ref, $course_id]);
+        $lessonDeletionPlans[] = $lessonDeletionService->deleteRecords($ref);
 
       } elseif ($typ === 'ASSIGNMENT') {
         $delAssignFiles->execute([$ref]);
@@ -236,6 +210,8 @@ try {
   }
 
   $pdo->commit();
+  foreach ($lessonDeletionPlans as $plan) $lessonDeletionService->cleanupFiles($plan);
+  $lessonDeletionPlans = [];
   echo json_encode(['ok'=>true]);
 
 } catch (Throwable $e) {
